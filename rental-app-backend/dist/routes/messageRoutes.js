@@ -13,34 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const authController_1 = require("../controllers/authController");
+const Message_1 = require("../models/Message");
 const router = express_1.default.Router();
-// Route for user registration
-router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Send a new message
+router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, authController_1.registerUser)(req, res);
+        const newMessage = new Message_1.Message(req.body);
+        const savedMessage = yield newMessage.save();
+        res.status(201).json(savedMessage);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Error sending message', error });
     }
 }));
-// Route for user login
-router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+// Get all messages
+router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, authController_1.loginUser)(req, res);
+        const messages = yield Message_1.Message.find();
+        res.json(messages);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Error fetching messages', error });
     }
 }));
 exports.default = router;
