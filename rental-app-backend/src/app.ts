@@ -7,25 +7,34 @@ import messageRoutes from './routes/messageRoutes';   // Import Message routes
 
 // Load environment variables from .env file
 dotenv.config();
+console.log('Environment variables loaded...');
 
 // Connect to the database
+console.log('Connecting to the database...');
 connectDB();
 
 const app = express();
 
 // Middleware
+console.log('Enabling CORS middleware...');
 app.use(cors());
+console.log('Enabling JSON parser middleware...');
 app.use(express.json());
 
 // Define routes
+console.log('Defining root route...');
 app.get('/', (req: Request, res: Response) => {
-    res.send('API is running');
+  console.log('Root route accessed...');
+  res.send('API is running');
 });
 
 // Mount Property and Message routes
+console.log('Mounting /api/properties route...');
 app.use('/api/properties', propertyRoutes); // Properties API
+
+console.log('Mounting /api/messages route...');
 app.use('/api/messages', messageRoutes);   // Messages API
 
-// Export the app for use in other modules
+console.log('App initialization complete...');
 export default app;
 
