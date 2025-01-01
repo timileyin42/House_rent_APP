@@ -3,11 +3,11 @@ import {Property } from '../models/Property'; // Adjust the import based on your
 
 // Function to create a new property
 export const createProperty = async (req: Request, res: Response): Promise<void> => {
-    const { title, description, price, location, owner } = req.body;
+    const { title, description, price, address, landlord, images } = req.body;
 
     try {
         // Create a new property
-        const property = await Property.create({ title, description, price, location, owner });
+        const property = await Property.create({ title, description, price, address, landlord, images });
         res.status(201).json(property); // Respond with the created property
     } catch (error) {
         console.error('Error creating property:', error);

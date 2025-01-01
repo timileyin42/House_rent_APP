@@ -13,10 +13,10 @@ exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyByI
 const Property_1 = require("../models/Property"); // Adjust the import based on your project structure
 // Function to create a new property
 const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { title, description, price, location, owner } = req.body;
+    const { title, description, price, address, landlord, images } = req.body;
     try {
         // Create a new property
-        const property = yield Property_1.Property.create({ title, description, price, location, owner });
+        const property = yield Property_1.Property.create({ title, description, price, address, landlord, images });
         res.status(201).json(property); // Respond with the created property
     }
     catch (error) {
