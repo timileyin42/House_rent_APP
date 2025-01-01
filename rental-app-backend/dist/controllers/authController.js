@@ -32,8 +32,14 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const user = yield User_1.default.create({ name, email, password: hashedPassword, role });
         // Generate a JWT token
         const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
-        // Respond with the token
-        res.status(201).json({ token });
+        // Respond with the user details and the token
+        res.status(201).json({
+            id: user._id, // Include the user ID
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: token
+        });
     }
     catch (error) {
         // Handle errors
@@ -58,8 +64,14 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         // Generate a JWT token
         const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
-        // Respond with the token
-        res.status(200).json({ token });
+        // Respond with the user details and the token
+        res.status(200).json({
+            id: user._id, // Include the user ID
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: token
+        });
     }
     catch (error) {
         // Handle errors

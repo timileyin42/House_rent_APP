@@ -24,8 +24,14 @@ export const registerUser  = async (req: Request, res: Response) => {
     // Generate a JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
 
-    // Respond with the token
-    res.status(201).json({ token });
+    // Respond with the user details and the token
+    res.status(201).json({
+      id: user._id, // Include the user ID
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: token
+    });
   } catch (error) {
     // Handle errors
     console.error('Registration error:', error); // Log the error for debugging
@@ -53,8 +59,14 @@ export const loginUser  = async (req: Request, res: Response) => {
     // Generate a JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
 
-    // Respond with the token
-    res.status(200).json({ token });
+    // Respond with the user details and the token
+    res.status(200).json({
+      id: user._id, // Include the user ID
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: token
+    });
   } catch (error) {
     // Handle errors
     console.error('Login error:', error); // Log the error for debugging
