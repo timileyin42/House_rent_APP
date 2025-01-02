@@ -6,11 +6,12 @@ import {
     updatePropertyById,
     deletePropertyById
 } from '../controllers/propertyController'; // Import the controller functions
+import { validateProperty } from '../middleware/validation';
 
 const router = Router();
 
 // Create a new property
-router.post('/', createProperty);
+router.post('/', validateProperty, createProperty);
 
 // Get property by ID
 router.get('/:id', getPropertyById);

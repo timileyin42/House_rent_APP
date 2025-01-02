@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
+    "target": "es6",
     "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
