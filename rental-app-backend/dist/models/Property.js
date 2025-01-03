@@ -62,6 +62,13 @@ const PropertySchema = new mongoose_1.Schema({
         type: [String],
         default: [],
     },
+    propertyType: {
+        type: String,
+        enum: ['Apartment', 'House', 'Studio', 'Condo'],
+    },
+    bedrooms: {
+        type: Number,
+    },
 }, { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
 );
 exports.Property = mongoose_1.default.model('Property', PropertySchema);

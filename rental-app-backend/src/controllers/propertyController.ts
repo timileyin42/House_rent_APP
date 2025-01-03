@@ -80,3 +80,28 @@ export const deletePropertyById = async (req: Request, res: Response): Promise<v
         });
     }
 };
+
+export const searchProperties = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { priceMin, priceMax, location, propertyType, bedrooms } = req.query;
+
+    // Build a query object dynamically based on filters provided
+    const query: any = {};
+    if (priceMin) query.price = { ...query.price, $gte: Number(priceMin) };
+    if (priceMax) query.price = { ...query.price, $lte: Number(priceMax) };
+    if (location) query.address = { $regex: new RegExp(location as string, 'i') }; // Case-insensitive match
+    if (propertyType) query.propertyType = propertyType;
+    if (bedrooms) query.bedrooms = Number(bedrooms);
+
+    // Fetch properties based on the query
+    const properties = await Property.find(query);
+
+    res.status(200).json(properties);
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({
+      message: 'Server error',
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};

@@ -1,20 +1,23 @@
 import { Router } from 'express';
-import { Property } from '../models/Property'; // Use named import
 import {
-    createProperty,
-    getPropertyById,
-    updatePropertyById,
-    deletePropertyById
-} from '../controllers/propertyController'; // Import the controller functions
+  createProperty,
+  getPropertyById,
+  updatePropertyById,
+  deletePropertyById,
+  searchProperties,
+} from '../controllers/propertyController';
 import { validateProperty } from '../middleware/validation';
 
 const router = Router();
 
-// Create a new property
-router.post('/', validateProperty, createProperty);
+// Search for properties
+router.get('/search', searchProperties); 
 
 // Get property by ID
 router.get('/:id', getPropertyById);
+
+// Create a new property
+router.post('/', validateProperty, createProperty);
 
 // Update property by ID
 router.put('/:id', updatePropertyById);
@@ -22,4 +25,5 @@ router.put('/:id', updatePropertyById);
 // Delete property by ID
 router.delete('/:id', deletePropertyById);
 
-export default router; // Ensure this is a default export
+export default router;
+

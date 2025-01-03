@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.createProperty = void 0;
+exports.searchProperties = exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.createProperty = void 0;
 const Property_1 = require("../models/Property"); // Adjust the import based on your project structure
 // Function to create a new property
 const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -94,3 +94,31 @@ const deletePropertyById = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.deletePropertyById = deletePropertyById;
+const searchProperties = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { priceMin, priceMax, location, propertyType, bedrooms } = req.query;
+        // Build a query object dynamically based on filters provided
+        const query = {};
+        if (priceMin)
+            query.price = Object.assign(Object.assign({}, query.price), { $gte: Number(priceMin) });
+        if (priceMax)
+            query.price = Object.assign(Object.assign({}, query.price), { $lte: Number(priceMax) });
+        if (location)
+            query.address = { $regex: new RegExp(location, 'i') }; // Case-insensitive match
+        if (propertyType)
+            query.propertyType = propertyType;
+        if (bedrooms)
+            query.bedrooms = Number(bedrooms);
+        // Fetch properties based on the query
+        const properties = yield Property_1.Property.find(query);
+        res.status(200).json(properties);
+    }
+    catch (error) {
+        console.error('Error fetching properties:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+});
+exports.searchProperties = searchProperties;

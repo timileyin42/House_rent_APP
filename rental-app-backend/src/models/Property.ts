@@ -7,6 +7,8 @@ interface IProperty extends Document {
   price: number;
   landlord: mongoose.Schema.Types.ObjectId;
   images: string[];
+  propertyType?: string;
+  bedrooms?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,6 +40,13 @@ const PropertySchema: Schema<IProperty> = new Schema(
     images: {
       type: [String],
       default: [],
+    },
+    propertyType: {
+      type: String,
+      enum: ['Apartment', 'House', 'Studio', 'Condo'],
+    },
+    bedrooms: {
+      type: Number,
     },
   },
   { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
