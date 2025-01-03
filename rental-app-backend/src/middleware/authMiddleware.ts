@@ -5,11 +5,12 @@ export interface AuthRequest extends Request {
     user?: {
         id?: string;
         email?: string;
+        role?: string; // Ensure role is included here
         [key: string]: any;
     };
 }
 
-const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
+const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -19,6 +20,7 @@ const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET || '') as {
                 id: string;
                 email: string;
+                role: string; // Ensure role is included in the decoded token
             };
             req.user = decoded; // Attach user info to the request
             next();
@@ -31,4 +33,3 @@ const protect = (req: AuthRequest, res: Response, next: NextFunction) => {
 };
 
 export default protect;
-

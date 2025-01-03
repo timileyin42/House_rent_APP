@@ -32,6 +32,17 @@ const propertySchema = joi_1.default.object({
         'array.base': 'Images must be an array of strings',
         'string.base': 'Each image must be a string',
     }),
+    propertyType: joi_1.default.string().valid('Apartment', 'House', 'Condo').required().messages({
+        'string.base': 'Property type must be a string',
+        'any.required': 'Property type is required',
+        'any.only': 'Property type must be one of the following: Apartment, House, Condo',
+    }),
+    bedrooms: joi_1.default.number().integer().min(1).required().messages({
+        'number.base': 'Bedrooms must be a number',
+        'number.integer': 'Bedrooms must be an integer',
+        'number.min': 'Bedrooms must be at least 1',
+        'any.required': 'Bedrooms are required',
+    }),
 });
 // Middleware function
 const validateProperty = (req, res, next) => {

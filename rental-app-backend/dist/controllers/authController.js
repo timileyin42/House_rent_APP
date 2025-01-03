@@ -30,11 +30,12 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const hashedPassword = yield bcrypt_1.default.hash(password, salt);
         // Create a new user
         const user = yield User_1.default.create({ name, email, password: hashedPassword, role });
-        // Generate a JWT token
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
+        // Generate a JWT token with role included
+        const token = jsonwebtoken_1.default.sign({ id: user._id, email: user.email, role: user.role }, // Include role in the token
+        process.env.JWT_SECRET || '', { expiresIn: '30d' });
         // Respond with the user details and the token
         res.status(201).json({
-            id: user._id, // Include the user ID
+            id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -42,8 +43,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         });
     }
     catch (error) {
-        // Handle errors
-        console.error('Registration error:', error); // Log the error for debugging
+        console.error('Registration error:', error);
         res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 });
@@ -62,11 +62,12 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-        // Generate a JWT token
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_SECRET || '', { expiresIn: '30d' });
+        // Generate a JWT token with role included
+        const token = jsonwebtoken_1.default.sign({ id: user._id, email: user.email, role: user.role }, // Include role in the token
+        process.env.JWT_SECRET || '', { expiresIn: '30d' });
         // Respond with the user details and the token
         res.status(200).json({
-            id: user._id, // Include the user ID
+            id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
@@ -74,8 +75,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     catch (error) {
-        // Handle errors
-        console.error('Login error:', error); // Log the error for debugging
+        console.error('Login error:', error);
         res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 });
