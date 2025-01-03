@@ -1,4 +1,3 @@
-// app.ts
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv-safe';
@@ -9,6 +8,7 @@ import connectDB from './config/db';
 import propertyRoutes from './routes/propertyRoutes';
 import messageRoutes from './routes/messageRoutes';
 import authRoutes from './routes/authRoutes';
+import savedSearchRoutes from './routes/savedSearchRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -67,6 +67,10 @@ app.use('/api/messages', messageRoutes);   // Messages API
 // Mount Auth routes
 console.log('Mounting /api/auth route...');
 app.use('/api/auth', authRoutes); // Auth API
+
+// Mount Saved Searches routes
+console.log('Mounting /api/saved-searches route...');
+app.use('/api/saved-searches', savedSearchRoutes); // Saved Searches API
 
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');

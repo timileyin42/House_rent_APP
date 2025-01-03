@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// app.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_safe_1 = __importDefault(require("dotenv-safe"));
@@ -14,6 +13,7 @@ const db_1 = __importDefault(require("./config/db"));
 const propertyRoutes_1 = __importDefault(require("./routes/propertyRoutes"));
 const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const savedSearchRoutes_1 = __importDefault(require("./routes/savedSearchRoutes"));
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -59,6 +59,9 @@ app.use('/api/messages', messageRoutes_1.default); // Messages API
 // Mount Auth routes
 console.log('Mounting /api/auth route...');
 app.use('/api/auth', authRoutes_1.default); // Auth API
+// Mount Saved Searches routes
+console.log('Mounting /api/saved-searches route...');
+app.use('/api/saved-searches', savedSearchRoutes_1.default); // Saved Searches API
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err, req, res, next) => {

@@ -10,7 +10,7 @@ const protect = (req, res, next) => {
         token = req.headers.authorization.split(' ')[1];
         try {
             const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET || '');
-            req.user = decoded;
+            req.user = decoded; // Attach user info to the request
             next();
         }
         catch (error) {
