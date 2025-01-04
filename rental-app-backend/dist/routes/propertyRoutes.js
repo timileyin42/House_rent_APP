@@ -13,6 +13,12 @@ const router = (0, express_1.Router)();
 router.get('/search', propertyController_1.searchProperties);
 // Get property by ID (open to all)
 router.get('/:id', propertyController_1.getPropertyById);
+// Track property view (open to all)
+router.post('/:id/view', propertyController_1.trackPropertyView);
+// Track property inquiry (open to all)
+router.post('/:id/inquiry', propertyController_1.trackPropertyInquiry);
+// Get property analytics (restricted to landlords)
+router.get('/:id/analytics', authMiddleware_1.default, roleMiddleware_1.landlordOnly, propertyController_1.getPropertyAnalytics);
 // Create a new property (restricted to landlords)
 router.post('/', authMiddleware_1.default, roleMiddleware_1.landlordOnly, validation_1.validateProperty, propertyController_1.createProperty);
 // Update property by ID (restricted to landlords)

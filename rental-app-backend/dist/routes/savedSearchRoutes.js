@@ -13,4 +13,10 @@ router.post('/', authMiddleware_1.default, savedSearchController_1.createSavedSe
 router.get('/:userId', authMiddleware_1.default, savedSearchController_1.getSavedSearches);
 // Route to delete a saved search by ID
 router.delete('/:id', authMiddleware_1.default, savedSearchController_1.deleteSavedSearch);
+// Route to add a property to favorites
+router.post('/favorites', authMiddleware_1.default, savedSearchController_1.addFavorite);
+// Route to get favorite properties
+router.get('/favorites/:userId', authMiddleware_1.default, savedSearchController_1.getFavorites);
+// Route to remove a property from favorites
+router.delete('/favorites', authMiddleware_1.default, savedSearchController_1.removeFavorite);
 exports.default = router;

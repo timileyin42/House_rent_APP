@@ -20,24 +20,23 @@ const propertySchema = Joi.object({
     'number.greater': 'Price must be greater than zero',
     'any.required': 'Price is required',
   }),
-  landlord: Joi.string().required().messages({
+  landlord: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required().messages({
     'string.base': 'Landlord ID must be a string',
+    'string.pattern.base': 'Landlord ID must be a valid ObjectId',
     'any.required': 'Landlord ID is required',
   }),
   images: Joi.array().items(Joi.string()).optional().messages({
     'array.base': 'Images must be an array of strings',
     'string.base': 'Each image must be a string',
   }),
-  propertyType: Joi.string().valid('Apartment', 'House', 'Condo').required().messages({
+  propertyType: Joi.string().valid('Apartment', 'House', 'Studio', 'Condo').optional().messages({
     'string.base': 'Property type must be a string',
-    'any.required': 'Property type is required',
-    'any.only': 'Property type must be one of the following: Apartment, House, Condo',
+    'any.only': 'Property type must be one of the following: Apartment, House, Studio, Condo',
   }),
-  bedrooms: Joi.number().integer().min(1).required().messages({
+  bedrooms: Joi.number().integer().min(1).optional().messages({
     'number.base': 'Bedrooms must be a number',
     'number.integer': 'Bedrooms must be an integer',
     'number.min': 'Bedrooms must be at least 1',
-    'any.required': 'Bedrooms are required',
   }),
 });
 

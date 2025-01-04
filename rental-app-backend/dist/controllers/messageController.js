@@ -9,8 +9,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getMessages = exports.sendMessage = void 0;
+exports.getMessages = exports.sendMessage = exports.getTenantMessages = exports.getLandlordMessages = void 0;
 const Message_1 = require("../models/Message");
+const getLandlordMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { landlordId } = req.params;
+        if (!landlordId) {
+            res.status(400).json({ message: 'Landlord ID is required.' });
+            return;
+        }
+        const messages = yield Message_1.Message.find()
+            .populate('property', 'landlord')
+            .populate('sender', 'name email')
+            .populate('recipient', 'name email')
+            .where('property.landlord')
+            .equals(landlordId);
+        res.status(200).json({ message: 'Messages retrieved successfully.', data: messages });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error retrieving messages', error });
+    }
+});
+exports.getLandlordMessages = getLandlordMessages;
+const getTenantMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { tenantId } = req.params;
+        if (!tenantId) {
+            res.status(400).json({ message: 'Tenant ID is required.' });
+            return;
+        }
+        const messages = yield Message_1.Message.find()
+            .or([{ sender: tenantId }, { recipient: tenantId }])
+            .populate('sender', 'name email')
+            .populate('recipient', 'name email')
+            .populate('property', 'title address');
+        res.status(200).json({ message: 'Messages retrieved successfully.', data: messages });
+    }
+    catch (error) {
+        res.status(500).json({ message: 'Error retrieving messages', error });
+    }
+});
+exports.getTenantMessages = getTenantMessages;
 // Send a new message
 const sendMessage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

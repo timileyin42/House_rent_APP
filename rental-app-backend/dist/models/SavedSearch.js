@@ -46,6 +46,12 @@ const SavedSearchSchema = new mongoose_1.Schema({
         of: mongoose_1.Schema.Types.Mixed,
         required: true,
     },
+    favorites: [
+        {
+            type: mongoose_1.default.Schema.Types.ObjectId,
+            ref: 'Property', // Assuming 'Property' is the model for properties
+        },
+    ],
     createdAt: {
         type: Date,
         default: Date.now,

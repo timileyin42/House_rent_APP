@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.searchProperties = exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.createProperty = void 0;
+exports.getPropertyAnalytics = exports.trackPropertyInquiry = exports.trackPropertyView = exports.searchProperties = exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.createProperty = void 0;
 const Property_1 = require("../models/Property"); // Adjust the import based on your project structure
 // Function to create a new property
 const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -122,3 +122,66 @@ const searchProperties = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.searchProperties = searchProperties;
+// Function to track property views
+const trackPropertyView = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const property = yield Property_1.Property.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+        res.status(200).json(property);
+    }
+    catch (error) {
+        console.error('Error tracking property view:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+});
+exports.trackPropertyView = trackPropertyView;
+// Function to track property inquiries
+const trackPropertyInquiry = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const property = yield Property_1.Property.findByIdAndUpdate(id, { $inc: { inquiries: 1 } }, { new: true });
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+        res.status(200).json(property);
+    }
+    catch (error) {
+        console.error('Error tracking property inquiry:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+});
+exports.trackPropertyInquiry = trackPropertyInquiry;
+// Function to get analytics for a property
+const getPropertyAnalytics = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const property = yield Property_1.Property.findById(id);
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+        res.status(200).json({
+            views: property.views,
+            inquiries: property.inquiries,
+        });
+    }
+    catch (error) {
+        console.error('Error fetching property analytics:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
+    }
+});
+exports.getPropertyAnalytics = getPropertyAnalytics;

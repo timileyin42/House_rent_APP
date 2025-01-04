@@ -9,6 +9,8 @@ interface IProperty extends Document {
   images: string[];
   propertyType?: string;
   bedrooms?: number;
+  views: number; // Add this line
+  inquiries: number; // Add this line
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,7 +36,7 @@ const PropertySchema: Schema<IProperty> = new Schema(
     },
     landlord: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: 'User ',
       required: true,
     },
     images: {
@@ -48,9 +50,16 @@ const PropertySchema: Schema<IProperty> = new Schema(
     bedrooms: {
       type: Number,
     },
+    views: {
+      type: Number,
+      default: 0, // Initialize views to 0
+    },
+    inquiries: {
+      type: Number,
+      default: 0, // Initialize inquiries to 0
+    },
   },
   { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
 );
 
 export const Property = mongoose.model<IProperty>('Property', PropertySchema);
-

@@ -33,50 +33,32 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Property = void 0;
+exports.MaintenanceRequest = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const PropertySchema = new mongoose_1.Schema({
-    title: {
-        type: String,
+const MaintenanceRequestSchema = new mongoose_1.Schema({
+    tenantId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
-        trim: true,
+    },
+    landlordId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    propertyId: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'Property',
+        required: true,
     },
     description: {
         type: String,
         required: true,
     },
-    address: {
+    status: {
         type: String,
-        required: true,
+        enum: ['Pending', 'In Progress', 'Completed'],
+        default: 'Pending',
     },
-    price: {
-        type: Number,
-        required: true,
-    },
-    landlord: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'User ',
-        required: true,
-    },
-    images: {
-        type: [String],
-        default: [],
-    },
-    propertyType: {
-        type: String,
-        enum: ['Apartment', 'House', 'Studio', 'Condo'],
-    },
-    bedrooms: {
-        type: Number,
-    },
-    views: {
-        type: Number,
-        default: 0, // Initialize views to 0
-    },
-    inquiries: {
-        type: Number,
-        default: 0, // Initialize inquiries to 0
-    },
-}, { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
-);
-exports.Property = mongoose_1.default.model('Property', PropertySchema);
+}, { timestamps: true });
+exports.MaintenanceRequest = mongoose_1.default.model('MaintenanceRequest', MaintenanceRequestSchema);
