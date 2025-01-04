@@ -105,3 +105,69 @@ export const searchProperties = async (req: Request, res: Response): Promise<voi
     });
   }
 };
+
+// Function to track property views
+export const trackPropertyView = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+
+    if (!property) {
+      res.status(404).json({ message: 'Property not found' });
+      return;
+    }
+
+    res.status(200).json(property);
+  } catch (error) {
+    console.error('Error tracking property view:', error);
+    res.status(500).json({
+      message: 'Server error',
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+// Function to track property inquiries
+export const trackPropertyInquiry = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findByIdAndUpdate(id, { $inc: { inquiries: 1 } }, { new: true });
+
+    if (!property) {
+      res.status(404).json({ message: 'Property not found' });
+      return;
+    }
+
+    res.status(200).json(property);
+  } catch (error) {
+    console.error('Error tracking property inquiry:', error);
+    res.status(500).json({
+      message: 'Server error',
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};
+
+// Function to get analytics for a property
+export const getPropertyAnalytics = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const property = await Property.findById(id);
+
+    if (!property) {
+      res.status(404).json({ message: 'Property not found' });
+      return;
+    }
+
+    res.status(200).json({
+      views: property.views,
+      inquiries: property.inquiries,
+    });
+  } catch (error) {
+    console.error('Error fetching property analytics:', error);
+    res.status(500).json({
+      message: 'Server error',
+      error: error instanceof Error ? error.message : error,
+    });
+  }
+};

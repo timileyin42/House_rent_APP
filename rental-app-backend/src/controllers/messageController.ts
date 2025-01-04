@@ -23,6 +23,27 @@ export const getLandlordMessages = async (req: Request, res: Response): Promise<
     }
 };
 
+export const getTenantMessages = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { tenantId } = req.params;
+
+        if (!tenantId) {
+            res.status(400).json({ message: 'Tenant ID is required.' });
+            return;
+        }
+
+        const messages = await Message.find()
+            .or([{ sender: tenantId }, { recipient: tenantId }])
+            .populate('sender', 'name email')
+            .populate('recipient', 'name email')
+            .populate('property', 'title address');
+
+        res.status(200).json({ message: 'Messages retrieved successfully.', data: messages });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving messages', error });
+    }
+};
+
 // Send a new message
 export const sendMessage = async (req: Request, res: Response): Promise<void> => {
     try {
