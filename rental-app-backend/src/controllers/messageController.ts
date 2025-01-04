@@ -1,6 +1,28 @@
 import { Request, Response } from 'express';
 import { Message } from '../models/Message';
 
+export const getLandlordMessages = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { landlordId } = req.params;
+
+        if (!landlordId) {
+            res.status(400).json({ message: 'Landlord ID is required.' });
+            return;
+        }
+
+        const messages = await Message.find()
+            .populate('property', 'landlord')
+            .populate('sender', 'name email')
+            .populate('recipient', 'name email')
+            .where('property.landlord')
+            .equals(landlordId);
+
+        res.status(200).json({ message: 'Messages retrieved successfully.', data: messages });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving messages', error });
+    }
+};
+
 // Send a new message
 export const sendMessage = async (req: Request, res: Response): Promise<void> => {
     try {
