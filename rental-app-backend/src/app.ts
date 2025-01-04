@@ -9,6 +9,7 @@ import propertyRoutes from './routes/propertyRoutes';
 import messageRoutes from './routes/messageRoutes';
 import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
+import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes'; 
 
 // Load environment variables from .env file
 dotenv.config();
@@ -46,7 +47,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Swagger Documentation (Optional, include only if you have a swagger.json file)
+// Swagger Documentation 
 console.log('Mounting Swagger documentation...');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(require('./swagger.json')));
 
@@ -72,6 +73,10 @@ app.use('/api/auth', authRoutes); // Auth API
 console.log('Mounting /api/saved-searches route...');
 app.use('/api/saved-searches', savedSearchRoutes); // Saved Searches API
 
+// Mount Maintenance Request routes
+console.log('Mounting /api/maintenance-requests route...');
+app.use('/api/maintenance-requests', maintenanceRequestRoutes); // Maintenance Requests API
+
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -82,4 +87,3 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
-
