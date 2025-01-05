@@ -9,7 +9,8 @@ import propertyRoutes from './routes/propertyRoutes';
 import messageRoutes from './routes/messageRoutes';
 import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
-import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes'; 
+import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
+import appointmentRoutes from './routes/appointmentRoutes'; 
 
 // Load environment variables from .env file
 dotenv.config();
@@ -47,7 +48,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Swagger Documentation 
+// Swagger Documentation
 console.log('Mounting Swagger documentation...');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(require('./swagger.json')));
 
@@ -63,7 +64,7 @@ console.log('Mounting /api/properties route...');
 app.use('/api/properties', propertyRoutes); // Properties API
 
 console.log('Mounting /api/messages route...');
-app.use('/api/messages', messageRoutes);   // Messages API
+app.use('/api/messages', messageRoutes); // Messages API
 
 // Mount Auth routes
 console.log('Mounting /api/auth route...');
@@ -77,6 +78,10 @@ app.use('/api/saved-searches', savedSearchRoutes); // Saved Searches API
 console.log('Mounting /api/maintenance-requests route...');
 app.use('/api/maintenance-requests', maintenanceRequestRoutes); // Maintenance Requests API
 
+// Mount Appointment routes
+console.log('Mounting /api/appointments route...');
+app.use('/api/appointments', appointmentRoutes); // Appointments API
+
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -87,3 +92,4 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
+
