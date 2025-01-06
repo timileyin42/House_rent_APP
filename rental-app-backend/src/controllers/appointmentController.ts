@@ -28,13 +28,24 @@ export const scheduleAppointment = async (req: Request, res: Response): Promise<
     };
 
     const event = await createEvent(eventDetails);
-    appointment.calendarEventId = event.id;
+    
+    // Ensure event.id is a string
+    if (event.id) {
+      appointment.calendarEventId = event.id;
+    } else {
+      appointment.calendarEventId = ''; // Handle the case where event.id is null or undefined
+    }
+
     await appointment.save();
 
     res.status(201).json(appointment);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
-    res.status(500).json({ message: 'Error scheduling appointment.', error: error.message });
+    if (error instanceof Error) {
+      res.status(500).json({ message: 'Error scheduling appointment.', error: error.message });
+    } else {
+      res.status(500).json({ message: 'Error scheduling appointment.', error: 'An unknown error occurred.' });
+    }
   }
 };
 
@@ -43,10 +54,4 @@ export const getAppointmentsForProperty = async (req: Request, res: Response): P
 
   try {
     const appointments = await Appointment.find({ propertyId }).populate('tenantId landlordId');
-    res.status(200).json(appointments);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching appointments.', error: error.message });
-  }
-};
-
+    res.status(200

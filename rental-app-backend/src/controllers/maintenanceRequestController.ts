@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { MaintenanceRequest } from '../models/maintenanceRequest';
+import { MaintenanceRequest } from '../models/MaintenanceRequest';
 
 // Create a maintenance request
 export const createMaintenanceRequest = async (req: Request, res: Response): Promise<void> => {

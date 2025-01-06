@@ -15,6 +15,7 @@ const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
 const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
 const savedSearchRoutes_1 = __importDefault(require("./routes/savedSearchRoutes"));
 const maintenanceRequestRoutes_1 = __importDefault(require("./routes/maintenanceRequestRoutes"));
+const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -43,7 +44,7 @@ if (process.env.NODE_ENV !== 'production') {
         next();
     });
 }
-// Swagger Documentation 
+// Swagger Documentation
 console.log('Mounting Swagger documentation...');
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(require('./swagger.json')));
 // Define routes
@@ -66,6 +67,9 @@ app.use('/api/saved-searches', savedSearchRoutes_1.default); // Saved Searches A
 // Mount Maintenance Request routes
 console.log('Mounting /api/maintenance-requests route...');
 app.use('/api/maintenance-requests', maintenanceRequestRoutes_1.default); // Maintenance Requests API
+// Mount Appointment routes
+console.log('Mounting /api/appointments route...');
+app.use('/api/appointments', appointmentRoutes_1.default); // Appointments API
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err, req, res, next) => {

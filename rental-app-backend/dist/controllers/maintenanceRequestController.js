@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMaintenanceRequest = exports.updateMaintenanceRequestStatus = exports.getMaintenanceRequests = exports.createMaintenanceRequest = void 0;
-const maintenanceRequest_1 = require("../models/maintenanceRequest");
+const MaintenanceRequest_1 = require("../models/MaintenanceRequest");
 // Create a maintenance request
 const createMaintenanceRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -19,7 +19,7 @@ const createMaintenanceRequest = (req, res) => __awaiter(void 0, void 0, void 0,
             res.status(400).json({ message: 'All fields are required.' });
             return;
         }
-        const newRequest = new maintenanceRequest_1.MaintenanceRequest({ tenantId, landlordId, propertyId, description });
+        const newRequest = new MaintenanceRequest_1.MaintenanceRequest({ tenantId, landlordId, propertyId, description });
         const savedRequest = yield newRequest.save();
         res.status(201).json({ message: 'Maintenance request created successfully.', data: savedRequest });
     }
@@ -41,7 +41,7 @@ const getMaintenanceRequests = (req, res) => __awaiter(void 0, void 0, void 0, f
             return;
         }
         const filter = role === 'tenant' ? { tenantId: userId } : { landlordId: userId };
-        const requests = yield maintenanceRequest_1.MaintenanceRequest.find(filter).populate('propertyId tenantId landlordId');
+        const requests = yield MaintenanceRequest_1.MaintenanceRequest.find(filter).populate('propertyId tenantId landlordId');
         res.status(200).json({ message: 'Maintenance requests retrieved successfully.', data: requests });
     }
     catch (error) {
@@ -61,7 +61,7 @@ const updateMaintenanceRequestStatus = (req, res) => __awaiter(void 0, void 0, v
             res.status(400).json({ message: 'Request ID and status are required.' });
             return;
         }
-        const updatedRequest = yield maintenanceRequest_1.MaintenanceRequest.findByIdAndUpdate(requestId, { status }, { new: true });
+        const updatedRequest = yield MaintenanceRequest_1.MaintenanceRequest.findByIdAndUpdate(requestId, { status }, { new: true });
         if (!updatedRequest) {
             res.status(404).json({ message: 'Maintenance request not found.' });
             return;
@@ -85,7 +85,7 @@ const deleteMaintenanceRequest = (req, res) => __awaiter(void 0, void 0, void 0,
             res.status(400).json({ message: 'Request ID is required.' });
             return;
         }
-        const deletedRequest = yield maintenanceRequest_1.MaintenanceRequest.findByIdAndDelete(requestId);
+        const deletedRequest = yield MaintenanceRequest_1.MaintenanceRequest.findByIdAndDelete(requestId);
         if (!deletedRequest) {
             res.status(404).json({ message: 'Maintenance request not found.' });
             return;
