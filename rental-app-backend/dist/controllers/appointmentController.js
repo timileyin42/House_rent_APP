@@ -63,9 +63,16 @@ const getAppointmentsForProperty = (req, res) => __awaiter(void 0, void 0, void 
     const { propertyId } = req.params;
     try {
         const appointments = yield Appointment_1.default.find({ propertyId }).populate('tenantId landlordId');
-        res.status(200);
+        res.status(200).json(appointments);
     }
-    finally {
+    catch (error) {
+        console.error(error);
+        if (error instanceof Error) {
+            res.status(500).json({ message: 'Error fetching appointments.', error: error.message });
+        }
+        else {
+            res.status(500).json({ message: 'Error fetching appointments.', error: 'An unknown error occurred.' });
+        }
     }
 });
 exports.getAppointmentsForProperty = getAppointmentsForProperty;
