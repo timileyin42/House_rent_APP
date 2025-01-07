@@ -24,7 +24,15 @@ export const initializePayment = async (req: Request, res: Response): Promise<vo
             }
         );
 
-        res.status(200).json(response.data);
+        // Send the authorization URL and reference back to the client
+        res.status(200).json({
+            status: true,
+            message: "Authorization URL created",
+            data: {
+                authorization_url: response.data.data.authorization_url,
+                reference: response.data.data.reference,
+            },
+        });
     } catch (error) {
         console.error('Error initializing payment:', error);
         res.status(500).json({
@@ -38,7 +46,7 @@ export const initializePayment = async (req: Request, res: Response): Promise<vo
 export const paymentWebhook = async (req: Request, res: Response): Promise<void> => {
     const event = req.body;
 
-    // Verify the event 
+    // Verify the event
     if (event.event === 'charge.success') {
         const { email, amount, reference } = event.data;
 
@@ -73,7 +81,6 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
 
         // Check if the payment is successful
         if (response.data.data.status === 'success') {
-            // Optionally, you can save the payment details to the database here as well
             const { email, amount } = response.data.data;
 
             // Check if the payment already exists

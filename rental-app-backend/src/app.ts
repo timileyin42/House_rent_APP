@@ -12,7 +12,7 @@ import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
 import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
 import appointmentRoutes from './routes/appointmentRoutes'; 
-import paymentRoutes from './routes/paymentRoutes'; // Import payment routes
+import paymentRoutes from './routes/paymentRoutes'; 
 
 // Load environment variables from .env file
 dotenv.config();
