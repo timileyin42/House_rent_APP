@@ -10,7 +10,4 @@ router.post('/initialize', initializePayment);
 // Webhook for Paystack to send payment status
 router.post('/webhook', paymentWebhook);
 
-// Callback to verify payment status
-router.get('/verify/:reference', verifyPayment);
-
-export default router;
+// Callback to
