@@ -35,11 +35,16 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const ReviewSchema = new mongoose_1.Schema({
-    propertyId: { type: mongoose_1.default.Types.ObjectId, required: true, ref: 'Property' },
-    tenantId: { type: mongoose_1.default.Types.ObjectId, required: true, ref: 'User' }, // Changed to 'User'
-    landlordId: { type: mongoose_1.default.Types.ObjectId, required: true, ref: 'User' }, // Changed to 'User'
+    propertyId: { type: mongoose_1.default.Types.ObjectId, ref: 'Property' },
+    tenantId: { type: mongoose_1.default.Types.ObjectId, ref: 'User' }, // Tenant reviews will reference 'User' model
+    landlordId: { type: mongoose_1.default.Types.ObjectId, required: true, ref: 'User' },
     rating: { type: Number, required: true, min: 1, max: 5 }, // Rating between 1 and 5
     comment: { type: String, required: true },
+    reviewedEntity: {
+        type: String,
+        enum: ['property', 'tenant'],
+        required: true,
+    },
     createdAt: { type: Date, default: Date.now },
 });
 const Review = mongoose_1.default.model('Review', ReviewSchema);
