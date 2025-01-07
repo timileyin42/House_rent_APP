@@ -12,7 +12,8 @@ import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
 import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
 import appointmentRoutes from './routes/appointmentRoutes'; 
-import paymentRoutes from './routes/paymentRoutes'; 
+import paymentRoutes from './routes/paymentRoutes';
+import reviewRoutes from './routes/reviewRoutes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -87,6 +88,10 @@ app.use('/api/appointments', appointmentRoutes); // Appointments API
 // Mount Payment routes
 console.log('Mounting /api/payments route...');
 app.use('/api/payments', paymentRoutes); // Payments API
+
+// Mount Review routes
+console.log('Mounting /api/reviews route...');
+app.use('/api/reviews', reviewRoutes); // Reviews API
 
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
