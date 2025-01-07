@@ -1,13 +1,23 @@
-// src/controllers/paymentController.ts
 import { Request, Response } from 'express';
 import axios from 'axios';
 import Payment from '../models/Payment';
+import nodemailer from 'nodemailer';
 
-const PAYSTACK_SECRET_KEY = process.env.PAYSTACK_SECRET_KEY;
+// Load environment variables
+require('dotenv').config();
+
+// Initialize nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // Use 'gmail' for Gmail
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
 
 // Initialize payment
 export const initializePayment = async (req: Request, res: Response): Promise<void> => {
-    const { amount, email } = req.body; // Amount should be in kobo (1 Naira = 100 Kobo)
+    const { amount, email } = req.body;
 
     try {
         const response = await axios.post(
@@ -18,7 +28,7 @@ export const initializePayment = async (req: Request, res: Response): Promise<vo
             },
             {
                 headers: {
-                    Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+                    Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
                     'Content-Type': 'application/json',
                 },
             }
@@ -75,13 +85,16 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
     try {
         const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
             headers: {
-                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
             },
         });
 
-        // Check if the payment is successful
-        if (response.data.data.status === 'success') {
-            const { email, amount } = response.data.data;
+        const paymentData = response.data.data;
+
+        // Check the payment status
+        if (paymentData.status === 'success') {
+            // Handle successful payment
+            const { email, amount } = paymentData;
 
             // Check if the payment already exists
             const existingPayment = await Payment.findOne({ reference });
@@ -94,7 +107,29 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
                 });
                 await payment.save();
                 console.log('Payment recorded:', payment);
+
+                // Notify the user about the successful payment
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER, // Sender address
+                    to: email, // Recipient's email address
+                    subject: 'Payment Successful',
+                    text: `Your payment of ${amount / 100} NGN was successful! Thank you for your payment.`,
+                });
             }
+        } else if (paymentData.status === 'abandoned') {
+            // Handle abandoned payment
+            console.log('Payment was abandoned:', paymentData);
+            // Optionally, log this information or notify the user
+        } else {
+            // Handle failed payment
+            console.log('Payment failed:', paymentData);
+            // Optionally, notify the user about the failure
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER, // Sender address
+                to: paymentData.customer.email, // Recipient's email address
+                subject: 'Payment Failed',
+                text: `Your payment of ${paymentData.amount / 100} NGN failed. Please try again.`,
+            });
         }
 
         res.status(200).json(response.data);
@@ -105,4 +140,4 @@ export const verifyPayment = async (req: Request, res: Response): Promise<void> 
             error: error instanceof Error ? error.message : error,
         });
     }
-};
+}; 
