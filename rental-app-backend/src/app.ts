@@ -1,3 +1,4 @@
+// app.ts
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv-safe';
@@ -11,6 +12,7 @@ import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
 import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
 import appointmentRoutes from './routes/appointmentRoutes'; 
+import paymentRoutes from './routes/paymentRoutes'; // Import payment routes
 
 // Load environment variables from .env file
 dotenv.config();
@@ -82,6 +84,10 @@ app.use('/api/maintenance-requests', maintenanceRequestRoutes); // Maintenance R
 console.log('Mounting /api/appointments route...');
 app.use('/api/appointments', appointmentRoutes); // Appointments API
 
+// Mount Payment routes
+console.log('Mounting /api/payments route...');
+app.use('/api/payments', paymentRoutes); // Payments API
+
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -92,4 +98,3 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
-
