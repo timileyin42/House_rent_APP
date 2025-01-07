@@ -11,8 +11,8 @@ export interface IReview extends Document {
 
 const ReviewSchema: Schema = new Schema({
     propertyId: { type: mongoose.Types.ObjectId, required: true, ref: 'Property' },
-    tenantId: { type: mongoose.Types.ObjectId, required: true, ref: 'Tenant' },
-    landlordId: { type: mongoose.Types.ObjectId, required: true, ref: 'Landlord' },
+    tenantId: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }, // Changed to 'User'
+    landlordId: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }, // Changed to 'User'
     rating: { type: Number, required: true, min: 1, max: 5 }, // Rating between 1 and 5
     comment: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
@@ -20,3 +20,4 @@ const ReviewSchema: Schema = new Schema({
 
 const Review = mongoose.model<IReview>('Review', ReviewSchema);
 export default Review;
+

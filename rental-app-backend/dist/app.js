@@ -18,6 +18,7 @@ const savedSearchRoutes_1 = __importDefault(require("./routes/savedSearchRoutes"
 const maintenanceRequestRoutes_1 = __importDefault(require("./routes/maintenanceRequestRoutes"));
 const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
 const paymentRoutes_1 = __importDefault(require("./routes/paymentRoutes"));
+const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -75,6 +76,9 @@ app.use('/api/appointments', appointmentRoutes_1.default); // Appointments API
 // Mount Payment routes
 console.log('Mounting /api/payments route...');
 app.use('/api/payments', paymentRoutes_1.default); // Payments API
+// Mount Review routes
+console.log('Mounting /api/reviews route...');
+app.use('/api/reviews', reviewRoutes_1.default); // Reviews API
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err, req, res, next) => {
