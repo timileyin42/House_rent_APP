@@ -1,3 +1,4 @@
+// Property.ts
 import mongoose, { Document, Schema } from 'mongoose';
 
 interface IProperty extends Document {
@@ -9,8 +10,9 @@ interface IProperty extends Document {
   images: string[];
   propertyType?: string;
   bedrooms?: number;
-  views: number; // Add this line
-  inquiries: number; // Add this line
+  views: number; // Track the number of views
+  inquiries: number; // Track the number of inquiries
+  status: 'pending' | 'approved' | 'rejected'; // Add status field
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +59,11 @@ const PropertySchema: Schema<IProperty> = new Schema(
     inquiries: {
       type: Number,
       default: 0, // Initialize inquiries to 0
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending', // Default status is pending
     },
   },
   { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
