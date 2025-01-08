@@ -1,13 +1,29 @@
 import { Request, Response } from 'express';
-import {Property } from '../models/Property'; // Adjust the import based on your project structure
+import { Property } from '../models/Property'; // Adjust the import based on your project structure
+import UserActivity from '../models/UserActivity'; // Import the UserActivity model
 
 // Function to create a new property
 export const createProperty = async (req: Request, res: Response): Promise<void> => {
     const { title, description, price, address, landlord, images } = req.body;
 
     try {
+        // Check for duplicate listings
+        const existingProperty = await Property.findOne({ title, address, landlord });
+        if (existingProperty) {
+            return res.status(400).json({ message: 'Duplicate property listing detected.' });
+        }
+
+        // Verification checks
+        if (!images || images.length < 1) {
+            return res.status(400).json({ message: 'At least one image is required.' });
+        }
+
         // Create a new property
         const property = await Property.create({ title, description, price, address, landlord, images });
+        
+        // Log user activity
+        await UserActivity.create({ userId: landlord, action: 'created_listing' });
+
         res.status(201).json(property); // Respond with the created property
     } catch (error) {
         console.error('Error creating property:', error);
@@ -29,6 +45,10 @@ export const getPropertyById = async (req: Request, res: Response): Promise<void
             return;
         }
         console.log('Property found:', property);
+        
+        // Log user activity for viewing the property
+        await UserActivity.create({ userId: property.landlord, action: 'viewed_property' });
+
         res.status(200).json(property);
     } catch (error) {
         console.error('Error fetching property:', error);
@@ -50,6 +70,10 @@ export const updatePropertyById = async (req: Request, res: Response): Promise<v
             return;
         }
         console.log('Property updated:', updatedProperty);
+        
+        // Log user activity for updating the property
+        await UserActivity.create({ userId: updatedProperty.landlord, action: 'updated_listing' });
+
         res.status(200).json(updatedProperty);
     } catch (error) {
         console.error('Error updating property:', error);
@@ -71,6 +95,10 @@ export const deletePropertyById = async (req: Request, res: Response): Promise<v
             return;
         }
         console.log('Property deleted:', deletedProperty);
+        
+        // Log user activity for deleting the property
+        await UserActivity.create({ userId: deletedProperty.landlord, action: 'deleted_listing' });
+
         res.status(200).json({ message: 'Property deleted' });
     } catch (error) {
         console.error('Error deleting property:', error);
@@ -81,93 +109,74 @@ export const deletePropertyById = async (req: Request, res: Response): Promise<v
     }
 };
 
-export const searchProperties = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { priceMin, priceMax, location, propertyType, bedrooms } = req.query;
-
-    // Build a query object dynamically based on filters provided
-    const query: any = {};
-    if (priceMin) query.price = { ...query.price, $gte: Number(priceMin) };
-    if (priceMax) query.price = { ...query.price, $lte: Number(priceMax) };
-    if (location) query.address = { $regex: new RegExp(location as string, 'i') }; // Case-insensitive match
-    if (propertyType) query.propertyType = propertyType;
-    if (bedrooms) query.bedrooms = Number(bedrooms);
-
-    // Fetch properties based on the query
-    const properties = await Property.find(query);
-
-    res.status(200).json(properties);
-  } catch (error) {
-    console.error('Error fetching properties:', error);
-    res.status(500).json({
-      message: 'Server error',
-      error: error instanceof Error ? error.message : error,
-    });
-  }
-};
-
 // Function to track property views
 export const trackPropertyView = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const property = await Property.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+    try {
+        const { id } = req.params;
+        const property = await Property.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
 
-    if (!property) {
-      res.status(404).json({ message: 'Property not found' });
-      return;
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+
+        // Log user activity for viewing the property
+        await UserActivity.create({ userId: property.landlord, action: 'viewed_property' });
+
+        res.status(200).json(property);
+    } catch (error) {
+        console.error('Error tracking property view:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
     }
-
-    res.status(200).json(property);
-  } catch (error) {
-    console.error('Error tracking property view:', error);
-    res.status(500).json({
-      message: 'Server error',
-      error: error instanceof Error ? error.message : error,
-    });
-  }
 };
 
 // Function to track property inquiries
 export const trackPropertyInquiry = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const property = await Property.findByIdAndUpdate(id, { $inc: { inquiries: 1 } }, { new: true });
+    try {
+        const { id } = req.params;
+        const property = await Property.findByIdAndUpdate(id, { $inc: { inquiries: 1 } }, { new: true });
 
-    if (!property) {
-      res.status(404).json({ message: 'Property not found' });
-      return;
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+
+        // Log user activity for inquiring about the property
+        await UserActivity.create({ userId: property.landlord, action: 'inquired_property' });
+
+        res.status(200).json(property);
+    } catch (error) {
+        console.error('Error tracking property inquiry:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
     }
-
-    res.status(200).json(property);
-  } catch (error) {
-    console.error('Error tracking property inquiry:', error);
-    res.status(500).json({
-      message: 'Server error',
-      error: error instanceof Error ? error.message : error,
-    });
-  }
 };
 
 // Function to get analytics for a property
 export const getPropertyAnalytics = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const property = await Property.findById(id);
+    try {
+        const { id } = req.params;
+        const property = await Property.findById(id);
 
-    if (!property) {
-      res.status(404).json({ message: 'Property not found' });
-      return;
+        if (!property) {
+            res.status(404).json({ message: 'Property not found' });
+            return;
+        }
+
+        res.status(200).json({
+            views: property.views,
+            inquiries: property.inquiries,
+        });
+    } catch (error) {
+        console.error('Error fetching property analytics:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error instanceof Error ? error.message : error,
+        });
     }
-
-    res.status(200).json({
-      views: property.views,
-      inquiries: property.inquiries,
-    });
-  } catch (error) {
-    console.error('Error fetching property analytics:', error);
-    res.status(500).json({
-      message: 'Server error',
-      error: error instanceof Error ? error.message : error,
-    });
-  }
 };

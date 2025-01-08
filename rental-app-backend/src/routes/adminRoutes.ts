@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { approveProperty, rejectProperty, getPendingProperties, getPropertyStatistics } from '../controllers/adminController';
+import { approveProperty, rejectProperty, getPendingProperties, getPropertyStatistics, getUserActivities } from '../controllers/adminController';
 
 const router = Router();
 
@@ -14,5 +14,8 @@ router.post('/properties/:id/reject', rejectProperty);
 
 // Get property statistics (views and inquiries)
 router.get('/properties/statistics', getPropertyStatistics);
+
+// Get user activities
+router.get('/users/activities', getUserActivities); // New route for user activities
 
 export default router;

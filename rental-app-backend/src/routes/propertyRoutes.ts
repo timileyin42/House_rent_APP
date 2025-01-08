@@ -40,4 +40,3 @@ router.put('/:id', protect, landlordOnly, updatePropertyById);
 router.delete('/:id', protect, landlordOnly, deletePropertyById);
 
 export default router;
-
