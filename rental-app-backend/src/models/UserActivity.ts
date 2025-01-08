@@ -12,7 +12,7 @@ const UserActivitySchema: Schema<IUserActivity> = new Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User ', // Ensure this references the correct User model
+            ref: 'User ',
             required: true,
         },
         action: {
@@ -28,4 +28,4 @@ const UserActivitySchema: Schema<IUserActivity> = new Schema(
 );
 
 // Export the UserActivity model
-export const UserActivity = mongoose.model<IUser Activity>('UserActivity', UserActivitySchema);
+export const UserActivity = mongoose.model<IUserActivity>('UserActivity', UserActivitySchema);

@@ -34,6 +34,46 @@ export const createProperty = async (req: Request, res: Response): Promise<Respo
     }
 };
 
+// Function to search for properties
+export const searchProperties = async (req: Request, res: Response): Promise<Response> => {
+    const { title, price, address } = req.query; // Get search parameters from query
+    const userId = req.user?._id; // Assuming you have user info in req.user after authentication
+
+    try {
+        // Build the search criteria
+        const searchCriteria: any = {};
+        if (title) {
+            searchCriteria.title = { $regex: title, $options: 'i' }; // Case-insensitive search
+        }
+        if (price) {
+            searchCriteria.price = price; // You can add more complex logic for price range if needed
+        }
+        if (address) {
+            searchCriteria.address = { $regex: address, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Find properties based on the search criteria
+        const properties = await Property.find(searchCriteria);
+
+        // Log user activity for searching properties
+        if (userId) {
+            await UserActivity.create({ userId, action: 'searched_properties', criteria: searchCriteria });
+        }
+
+        if (properties.length === 0) {
+            return res.status(404).json({ message: 'No properties found matching the criteria.' });
+        }
+
+        return res.status(200).json(properties);
+    } catch (error) {
+        console.error('Error searching properties:', error);
+        return res.status(500).json({
+            message: 'Server error',
+            error: (error as Error).message,
+        });
+    }
+};
+
 // Function to get a property by ID
 export const getPropertyById = async (req: Request, res: Response): Promise<Response> => {
     console.log(`GET /api/properties/${req.params.id} called`);
