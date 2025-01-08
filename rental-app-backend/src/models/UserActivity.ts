@@ -1,15 +1,31 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
+// Define the IUserActivity interface
 export interface IUserActivity extends Document {
-    userId: mongoose.Types.ObjectId; // Reference to the user
+    userId: mongoose.Schema.Types.ObjectId; // Reference to the user
     action: string; // e.g., 'viewed_property', 'logged_in', 'created_listing'
     timestamp: Date; // When the action occurred
 }
 
-const UserActivitySchema: Schema = new Schema<IUser Activity>({
-    userId: { type: mongoose.Types.ObjectId, required: true, ref: 'User ' },
-    action: { type: String, required: true },
-    timestamp: { type: Date, default: Date.now },
-});
+// Define the UserActivity schema
+const UserActivitySchema: Schema<IUserActivity> = new Schema(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User ', // Ensure this references the correct User model
+            required: true,
+        },
+        action: {
+            type: String,
+            required: true,
+        },
+        timestamp: {
+            type: Date,
+            default: Date.now,
+        },
+    },
+    { timestamps: true } // Automatically manage createdAt and updatedAt fields
+);
 
-export default mongoose.model<IUser Activity>('User Activity', UserActivitySchema);
+// Export the UserActivity model
+export const UserActivity = mongoose.model<IUser Activity>('UserActivity', UserActivitySchema);
