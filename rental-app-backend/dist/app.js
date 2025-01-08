@@ -10,6 +10,8 @@ const dotenv_safe_1 = __importDefault(require("dotenv-safe"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const http_1 = require("http");
+const socket_io_1 = require("socket.io");
 const db_1 = __importDefault(require("./config/db"));
 const propertyRoutes_1 = __importDefault(require("./routes/propertyRoutes"));
 const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
@@ -19,6 +21,8 @@ const maintenanceRequestRoutes_1 = __importDefault(require("./routes/maintenance
 const appointmentRoutes_1 = __importDefault(require("./routes/appointmentRoutes"));
 const paymentRoutes_1 = __importDefault(require("./routes/paymentRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
+const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
+const socket_1 = require("./utils/socket");
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -79,12 +83,26 @@ app.use('/api/payments', paymentRoutes_1.default); // Payments API
 // Mount Review routes
 console.log('Mounting /api/reviews route...');
 app.use('/api/reviews', reviewRoutes_1.default); // Reviews API
+// Mount Chat routes
+console.log('Mounting /api/chat route...');
+app.use('/api/chat', chatRoutes_1.default); // Chat API
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err, req, res, next) => {
     console.error('Unhandled error:', err.stack);
     res.status(500).json({ message: 'Internal server error', error: err.message });
 });
+// Socket.IO Setup
+console.log('Initializing Socket.IO...');
+const server = (0, http_1.createServer)(app); // Create a server instance
+const io = new socket_io_1.Server(server, {
+    cors: {
+        origin: '*', // will be Adjust later 
+        methods: ['GET', 'POST'],
+    },
+});
+// Integrate the socket setup utility
+(0, socket_1.setupSocket)(io);
 // App initialization complete
 console.log('App initialization complete...');
 exports.default = app;

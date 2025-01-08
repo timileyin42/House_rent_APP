@@ -33,12 +33,12 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Message = void 0;
-// src/models/Message.ts
 const mongoose_1 = __importStar(require("mongoose"));
-const messageSchema = new mongoose_1.Schema({
-    senderId: { type: String, required: true },
-    chatId: { type: String, required: true },
-    text: { type: String, required: true },
-}, { timestamps: true });
-exports.Message = mongoose_1.default.model('Message', messageSchema);
+const NotificationSchema = new mongoose_1.Schema({
+    userId: { type: mongoose_1.default.Types.ObjectId, ref: 'User', required: true },
+    type: { type: String, required: true },
+    message: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now },
+});
+exports.default = mongoose_1.default.model('Notification', NotificationSchema);

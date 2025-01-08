@@ -5,15 +5,19 @@ import dotenv from 'dotenv-safe';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
+import { createServer } from 'http'; 
+import { Server as SocketIOServer } from 'socket.io';
 import connectDB from './config/db';
 import propertyRoutes from './routes/propertyRoutes';
 import messageRoutes from './routes/messageRoutes';
 import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
 import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
-import appointmentRoutes from './routes/appointmentRoutes'; 
+import appointmentRoutes from './routes/appointmentRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reviewRoutes from './routes/reviewRoutes';
+import chatRoutes from './routes/chatRoutes';
+import { setupSocket } from './utils/socket'; 
 
 // Load environment variables from .env file
 dotenv.config();
@@ -93,6 +97,10 @@ app.use('/api/payments', paymentRoutes); // Payments API
 console.log('Mounting /api/reviews route...');
 app.use('/api/reviews', reviewRoutes); // Reviews API
 
+// Mount Chat routes
+console.log('Mounting /api/chat route...');
+app.use('/api/chat', chatRoutes); // Chat API
+
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -100,6 +108,20 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
+// Socket.IO Setup
+console.log('Initializing Socket.IO...');
+const server = createServer(app); // Create a server instance
+const io = new SocketIOServer(server, {
+    cors: {
+        origin: '*', // will be Adjust later 
+        methods: ['GET', 'POST'],
+    },
+});
+
+// Integrate the socket setup utility
+setupSocket(io);
+
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
+

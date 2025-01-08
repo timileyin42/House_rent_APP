@@ -1,43 +1,29 @@
+// src/utils/socket.ts
 import { Server } from 'socket.io';
-import Chat from './models/Chat';
+import { Message } from '../models/Message';
 
-const initializeSocket = (server: any) => {
-    const io = new Server(server, {
-        cors: {
-            origin: '*', // Update with the actual frontend URL
-            methods: ['GET', 'POST'],
-        },
+export const setupSocket = (io: Server) => {
+  io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    socket.on('joinRoom', (chatId: string) => {
+      socket.join(chatId);
+      console.log(`User joined room: ${chatId}`);
     });
 
-    io.on('connection', (socket) => {
-        console.log('A user connected:', socket.id);
+    socket.on('sendMessage', async ({ chatId, senderId, text }) => {
+      try {
+        const newMessage = await new Message({ senderId, chatId, text }).save();
 
-        // Listen for messages
-        socket.on('sendMessage', async (data) => {
-            const { senderId, receiverId, message } = data;
-
-            try {
-                // Save message in database
-                const newMessage = await Chat.create({ senderId, receiverId, message });
-                io.to(receiverId).emit('receiveMessage', newMessage);
-            } catch (error) {
-                console.error('Error saving message:', error);
-            }
-        });
-
-        // Join user-specific rooms for targeted communication
-        socket.on('joinRoom', (userId) => {
-            socket.join(userId);
-            console.log(`User joined room: ${userId}`);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
-        });
+        io.to(chatId).emit('newMessage', newMessage);
+      } catch (error) {
+        console.error('Error handling sendMessage event:', error);
+      }
     });
 
-    return io;
+    socket.on('disconnect', () => {
+      console.log('A user disconnected:', socket.id);
+    });
+  });
 };
-
-export default initializeSocket;
 
