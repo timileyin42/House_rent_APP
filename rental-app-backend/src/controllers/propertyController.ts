@@ -1,9 +1,16 @@
-import { Request, Response } from 'express';
+import { Request as ExpressRequest, Response } from 'express';
 import { Property } from '../models/Property'; // Adjust the import based on your project structure
 import { UserActivity } from '../models/UserActivity'; // Import the UserActivity model
 
+// Define a custom interface that extends the Express Request
+interface AuthRequest extends ExpressRequest {
+    user?: {
+        _id: string; // or mongoose.Types.ObjectId if you're using Mongoose
+    };
+}
+
 // Function to create a new property
-export const createProperty = async (req: Request, res: Response): Promise<Response> => {
+export const createProperty = async (req: AuthRequest, res: Response): Promise<Response> => {
     const { title, description, price, address, landlord, images } = req.body;
 
     try {
@@ -35,7 +42,7 @@ export const createProperty = async (req: Request, res: Response): Promise<Respo
 };
 
 // Function to search for properties
-export const searchProperties = async (req: Request, res: Response): Promise<Response> => {
+export const searchProperties = async (req: AuthRequest, res: Response): Promise<Response> => {
     const { title, price, address } = req.query; // Get search parameters from query
     const userId = req.user?._id; // Assuming you have user info in req.user after authentication
 
@@ -75,7 +82,7 @@ export const searchProperties = async (req: Request, res: Response): Promise<Res
 };
 
 // Function to get a property by ID
-export const getPropertyById = async (req: Request, res: Response): Promise<Response> => {
+export const getPropertyById = async (req: AuthRequest, res: Response): Promise<Response> => {
     console.log(`GET /api/properties/${req.params.id} called`);
     try {
         const property = await Property.findById(req.params.id);
@@ -99,12 +106,13 @@ export const getPropertyById = async (req: Request, res: Response): Promise<Resp
 };
 
 // Function to update a property by ID
-export const updatePropertyById = async (req: Request, res: Response): Promise<Response> => {
+export const updatePropertyById = async (req: AuthRequest, res: Response): Promise<Response> => {
     console.log(`PUT /api/properties/${req.params.id} called with data:`, req.body);
     try {
         const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedProperty) {
             console.log('Property not found for update.');
+            return res.status(404            console.log('Property not found for update.');
             return res.status(404).json({ message: 'Property not found' });
         }
         console.log('Property updated:', updatedProperty);
@@ -123,7 +131,7 @@ export const updatePropertyById = async (req: Request, res: Response): Promise<R
 };
 
 // Function to delete a property by ID
-export const deletePropertyById = async (req: Request, res: Response): Promise<Response> => {
+export const deletePropertyById = async (req: AuthRequest, res: Response): Promise<Response> => {
     console.log(`DELETE /api/properties/${req.params.id} called`);
     try {
         const deletedProperty = await Property.findByIdAndDelete(req.params.id);
@@ -147,7 +155,7 @@ export const deletePropertyById = async (req: Request, res: Response): Promise<R
 };
 
 // Function to track property views
-export const trackPropertyView = async (req: Request, res: Response): Promise<Response> => {
+export const trackPropertyView = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
         const { id } = req.params;
         const property = await Property.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
@@ -170,7 +178,7 @@ export const trackPropertyView = async (req: Request, res: Response): Promise<Re
 };
 
 // Function to track property inquiries
-export const trackPropertyInquiry = async (req: Request, res: Response): Promise<Response> => {
+export const trackPropertyInquiry = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
         const { id } = req.params;
         const property = await Property.findByIdAndUpdate(id, { $inc: { inquiries: 1 } }, { new: true });
@@ -193,7 +201,7 @@ export const trackPropertyInquiry = async (req: Request, res: Response): Promise
 };
 
 // Function to get analytics for a property
-export const getPropertyAnalytics = async (req: Request, res: Response): Promise<Response> => {
+export const getPropertyAnalytics = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
         const { id } = req.params;
         const property = await Property.findById(id);
