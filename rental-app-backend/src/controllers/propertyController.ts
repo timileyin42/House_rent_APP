@@ -112,7 +112,6 @@ export const updatePropertyById = async (req: AuthRequest, res: Response): Promi
         const updatedProperty = await Property.findByIdAndUpdate(req.params.id, req.body, { new: true });
         if (!updatedProperty) {
             console.log('Property not found for update.');
-            return res.status(404            console.log('Property not found for update.');
             return res.status(404).json({ message: 'Property not found' });
         }
         console.log('Property updated:', updatedProperty);

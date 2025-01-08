@@ -33,56 +33,24 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Property = void 0;
-// Property.ts
+exports.UserActivity = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const PropertySchema = new mongoose_1.Schema({
-    title: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    description: {
-        type: String,
-        required: true,
-    },
-    address: {
-        type: String,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
-    landlord: {
+// Define the UserActivity schema
+const UserActivitySchema = new mongoose_1.Schema({
+    userId: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'User ',
         required: true,
     },
-    images: {
-        type: [String],
-        default: [],
-    },
-    propertyType: {
+    action: {
         type: String,
-        enum: ['Apartment', 'House', 'Studio', 'Condo'],
+        required: true,
     },
-    bedrooms: {
-        type: Number,
+    timestamp: {
+        type: Date,
+        default: Date.now,
     },
-    views: {
-        type: Number,
-        default: 0, // Initialize views to 0
-    },
-    inquiries: {
-        type: Number,
-        default: 0, // Initialize inquiries to 0
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending', // Default status is pending
-    },
-}, { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
+}, { timestamps: true } // Automatically manage createdAt and updatedAt fields
 );
-exports.Property = mongoose_1.default.model('Property', PropertySchema);
+// Export the UserActivity model
+exports.UserActivity = mongoose_1.default.model('UserActivity', UserActivitySchema);
