@@ -34,28 +34,11 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Message = void 0;
+// src/models/Message.ts
 const mongoose_1 = __importStar(require("mongoose"));
-const MessageSchema = new mongoose_1.Schema({
-    sender: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    recipient: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    property: {
-        type: mongoose_1.default.Schema.Types.ObjectId,
-        ref: 'Property',
-        required: true,
-    },
-    content: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-}, { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
-);
-exports.Message = mongoose_1.default.model('Message', MessageSchema);
+const messageSchema = new mongoose_1.Schema({
+    senderId: { type: String, required: true },
+    chatId: { type: String, required: true },
+    text: { type: String, required: true },
+}, { timestamps: true });
+exports.Message = mongoose_1.default.model('Message', messageSchema);

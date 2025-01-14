@@ -1,15 +1,23 @@
+// app.ts
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv-safe';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
+import { createServer } from 'http'; 
+import { Server as SocketIOServer } from 'socket.io';
 import connectDB from './config/db';
 import propertyRoutes from './routes/propertyRoutes';
 import messageRoutes from './routes/messageRoutes';
 import authRoutes from './routes/authRoutes';
 import savedSearchRoutes from './routes/savedSearchRoutes';
-import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes'; 
+import maintenanceRequestRoutes from './routes/maintenanceRequestRoutes';
+import appointmentRoutes from './routes/appointmentRoutes';
+import paymentRoutes from './routes/paymentRoutes';
+import reviewRoutes from './routes/reviewRoutes';
+import chatRoutes from './routes/chatRoutes';
+import { setupSocket } from './utils/socket'; 
 
 // Load environment variables from .env file
 dotenv.config();
@@ -47,7 +55,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 }
 
-// Swagger Documentation 
+// Swagger Documentation
 console.log('Mounting Swagger documentation...');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(require('./swagger.json')));
 
@@ -63,7 +71,7 @@ console.log('Mounting /api/properties route...');
 app.use('/api/properties', propertyRoutes); // Properties API
 
 console.log('Mounting /api/messages route...');
-app.use('/api/messages', messageRoutes);   // Messages API
+app.use('/api/messages', messageRoutes); // Messages API
 
 // Mount Auth routes
 console.log('Mounting /api/auth route...');
@@ -77,6 +85,22 @@ app.use('/api/saved-searches', savedSearchRoutes); // Saved Searches API
 console.log('Mounting /api/maintenance-requests route...');
 app.use('/api/maintenance-requests', maintenanceRequestRoutes); // Maintenance Requests API
 
+// Mount Appointment routes
+console.log('Mounting /api/appointments route...');
+app.use('/api/appointments', appointmentRoutes); // Appointments API
+
+// Mount Payment routes
+console.log('Mounting /api/payments route...');
+app.use('/api/payments', paymentRoutes); // Payments API
+
+// Mount Review routes
+console.log('Mounting /api/reviews route...');
+app.use('/api/reviews', reviewRoutes); // Reviews API
+
+// Mount Chat routes
+console.log('Mounting /api/chat route...');
+app.use('/api/chat', chatRoutes); // Chat API
+
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -84,6 +108,20 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
+// Socket.IO Setup
+console.log('Initializing Socket.IO...');
+const server = createServer(app); // Create a server instance
+const io = new SocketIOServer(server, {
+    cors: {
+        origin: '*', // will be Adjust later 
+        methods: ['GET', 'POST'],
+    },
+});
+
+// Integrate the socket setup utility
+setupSocket(io);
+
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
+

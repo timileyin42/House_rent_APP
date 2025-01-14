@@ -34,6 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Property = void 0;
+// Property.ts
 const mongoose_1 = __importStar(require("mongoose"));
 const PropertySchema = new mongoose_1.Schema({
     title: {
@@ -76,6 +77,11 @@ const PropertySchema = new mongoose_1.Schema({
     inquiries: {
         type: Number,
         default: 0, // Initialize inquiries to 0
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending', // Default status is pending
     },
 }, { timestamps: true } // Automatically creates `createdAt` and `updatedAt` fields
 );
