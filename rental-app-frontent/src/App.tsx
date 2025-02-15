@@ -1,10 +1,13 @@
 import "./App.css";
-import Navbar from "./Navbar/Navbar";
+
+import LandingPage from "./LandingPage";
 
 function App() {
   return (
     <>
-      <Navbar />
+      <div className="overflow-x-hidden ">
+        <LandingPage />
+      </div>
     </>
   );
 }
