@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserActivities = exports.rejectProperty = exports.approveProperty = exports.getPendingProperties = void 0;
 const Property_1 = require("../models/Property");
-const UserActivity_1 = require("../models/UserActivity"); // Import the UserActivity model
+const UserActivity_1 = require("../models/UserActivity");
 // Get all pending properties
 const getPendingProperties = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -29,7 +29,8 @@ const approveProperty = (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         const property = yield Property_1.Property.findByIdAndUpdate(id, { status: 'approved' }, { new: true });
         if (!property) {
-            return res.status(404).json({ message: 'Property not found' });
+            res.status(404).json({ message: 'Property not found' });
+            return; // Exit the function early
         }
         res.status(200).json(property);
     }
@@ -44,7 +45,8 @@ const rejectProperty = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const property = yield Property_1.Property.findByIdAndUpdate(id, { status: 'rejected' }, { new: true });
         if (!property) {
-            return res.status(404).json({ message: 'Property not found' });
+            res.status(404).json({ message: 'Property not found' });
+            return; // Exit the function early
         }
         res.status(200).json(property);
     }
