@@ -1,18 +1,15 @@
 import { Button } from "../components/ui/button";
-import house from "../assets/images/house.jpeg";
 
 import { Search, MapPin } from "lucide-react";
 import Navbar from "./ui/Navbar";
+import PhotoGallery from "./ui/PhotoGallery";
 
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <Navbar />
       {/* Hero Section */}
-      <header
-        className="relative border bg-cover bg-center h-[500px] flex items-center justify-center text-center px-4 md:px-8 landing-page"
-        style={{ backgroundImage: house }}
-      >
+      <header className="relative border bg-cover bg-center h-[500px] flex items-center justify-center text-center px-4 md:px-8 landing-page">
         <div className="bg-black bg-opacity-50 p-6 rounded-lg text-white max-w-2xl ">
           <h1 className="text-4xl md:text-5xl font-bold mb-3">
             Find Your Perfect Home
@@ -45,21 +42,21 @@ const HomePage = () => {
           <h1 className="flex items-center text-center font-bold sm:text-lx md:text-2xl lg:text-3xl py-2">
             Find Your Dream Home – Premium Rentals in Nigeria
           </h1>
-          <p className="text-center text-base">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor nesciunt consequatur exercitationem, eligendi, porro quis dolorum excepturi aperiam, possimus officia a dolorem repudiandae pariatur? Eveniet, laboriosam? Laborum omnis tenetur totam.</p>
+          <p className="text-center text-base">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor
+            nesciunt consequatur exercitationem, eligendi, porro quis dolorum
+            excepturi aperiam, possimus officia a dolorem repudiandae pariatur?
+            Eveniet, laboriosam? Laborum omnis tenetur totam.
+          </p>
         </div>
       </section>
       {/* Photo gallery */}
-      <section className="flex justify-center  py-9 px-4">
-        <div className="p-4  flex flex-col w-full max-w-3xl flex-column items-center justify-center">
-          <h1 className="flex items-center text-center font-bold sm:text-lx md:text-2xl lg:text-3xl py-2">
-            Find Your Dream Home – Premium Rentals in Nigeria
-          </h1>
-          <p className="text-center text-base">Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor nesciunt consequatur exercitationem, eligendi, porro quis dolorum excepturi aperiam, possimus officia a dolorem repudiandae pariatur? Eveniet, laboriosam? Laborum omnis tenetur totam.</p>
-        </div>
+      <section className=" px-4 md:px-8">
+        <PhotoGallery />
       </section>
 
       {/* Featured Listings */}
-      <section className="py-10 px-4 md:px-8">
+      <section className="py-10 px-4 md:px-8 ">
         <h2 className="text-3xl font-bold text-center mb-6">
           Featured Properties
         </h2>

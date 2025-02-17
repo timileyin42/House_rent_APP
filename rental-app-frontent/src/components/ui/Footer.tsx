@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 import { Facebook, Twitter, Instagram, Mail, Home } from "lucide-react";
 
 const Footer = () => {
@@ -20,10 +20,26 @@ const Footer = () => {
           <div className="flex flex-col text-center md:text-left">
             <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-blue-400">Home</a></li>
-              <li><a href="#" className="hover:text-blue-400">Listings</a></li>
-              <li><a href="#" className="hover:text-blue-400">About Us</a></li>
-              <li><a href="#" className="hover:text-blue-400">Contact</a></li>
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  Listings
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-blue-400">
+                  Contact
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -42,7 +58,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="mt-3 flex items-center justify-center md:justify-start text-gray-400">
-              <Mail className="w-5 h-5 mr-2" /> support@rentease.com
+              <Mail className="w-5 h-5 mr-2" /> support@homego.com
             </p>
           </div>
         </div>
