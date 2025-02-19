@@ -5,3 +5,5 @@
 package-lock.json
 .env.example
 /myenv
+credentials.json
+rental-app-backend/src/config/credentials.json
