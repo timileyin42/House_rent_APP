@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { registerUser, loginUser } from '../controllers/authController';
-import { getAllUsers, getUserById } from '../controllers/userController'; // Import controllers for fetching users
+import { getAllUsers, getUserById } from '../controllers/userController';
 
 const router = express.Router();
 
@@ -9,11 +9,7 @@ router.post('/register', async (req: Request, res: Response) => {
     try {
         await registerUser(req, res);
     } catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        } else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 });
 
@@ -22,11 +18,7 @@ router.post('/login', async (req: Request, res: Response) => {
     try {
         await loginUser(req, res);
     } catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        } else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 });
 
@@ -49,4 +41,3 @@ router.get('/users/:id', async (req: Request, res: Response) => {
 });
 
 export default router;
-

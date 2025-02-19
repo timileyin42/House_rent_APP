@@ -8,23 +8,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEvent = void 0;
 const googleapis_1 = require("googleapis");
-const oauth2Client = new googleapis_1.google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET, process.env.GOOGLE_REDIRECT_URI);
-const calendar = googleapis_1.google.calendar({ version: 'v3', auth: oauth2Client });
+const path_1 = __importDefault(require("path"));
+const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const CREDENTIALS_PATH = path_1.default.join(__dirname, '../config/credentials.json');
+const auth = new googleapis_1.google.auth.GoogleAuth({
+    keyFile: CREDENTIALS_PATH,
+    scopes: SCOPES,
+});
+const calendar = googleapis_1.google.calendar({ version: 'v3', auth });
 const createEvent = (eventDetails) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const response = yield calendar.events.insert({
-            auth: oauth2Client,
             calendarId: 'primary',
-            requestBody: eventDetails,
+            requestBody: {
+                summary: eventDetails.summary,
+                description: eventDetails.description,
+                start: { dateTime: eventDetails.start.dateTime, timeZone: 'UTC' },
+                end: { dateTime: eventDetails.end.dateTime, timeZone: 'UTC' },
+                attendees: eventDetails.attendees,
+            },
         });
         return response.data;
     }
     catch (error) {
         console.error('Error creating Google Calendar event:', error);
-        throw new Error('Unable to create calendar event.');
+        throw error;
     }
 });
 exports.createEvent = createEvent;

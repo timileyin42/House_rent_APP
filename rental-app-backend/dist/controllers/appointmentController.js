@@ -16,63 +16,60 @@ exports.getAppointmentsForProperty = exports.scheduleAppointment = void 0;
 const Appointment_1 = __importDefault(require("../models/Appointment"));
 const googleCalendar_1 = require("../utils/googleCalendar");
 const scheduleAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { tenantId, landlordId, propertyId, dateTime, notes } = req.body;
+    const { tenantId, landlordId, propertyId, dateTime, notes, tenantEmail, landlordEmail } = req.body;
     try {
-        // Save the appointment in the database
-        const appointment = yield Appointment_1.default.create({
+        if (!tenantId || !landlordId || !propertyId || !dateTime || !tenantEmail || !landlordEmail) {
+            res.status(400).json({ message: 'Missing required fields.' });
+            return;
+        }
+        const appointment = new Appointment_1.default({
             tenantId,
             landlordId,
             propertyId,
             dateTime,
             notes,
         });
-        // Create Google Calendar event
-        const eventDetails = {
-            summary: `Property Viewing Appointment`,
-            description: `Viewing for property ID: ${propertyId}`,
-            start: { dateTime: new Date(dateTime).toISOString() },
-            end: { dateTime: new Date(new Date(dateTime).getTime() + 30 * 60 * 1000).toISOString() }, // 30 mins duration
-            attendees: [
-                { email: req.body.tenantEmail }, // Assuming tenant email is passed in body
-                { email: req.body.landlordEmail }, // Assuming landlord email is passed in body
-            ],
-        };
-        const event = yield (0, googleCalendar_1.createEvent)(eventDetails);
-        // Ensure event.id is a string
-        if (event.id) {
-            appointment.calendarEventId = event.id;
+        try {
+            const eventDetails = {
+                summary: `Property Viewing Appointment`,
+                description: `Viewing for property ID: ${propertyId}`,
+                start: { dateTime: new Date(dateTime).toISOString() },
+                end: { dateTime: new Date(new Date(dateTime).getTime() + 30 * 60 * 1000).toISOString() }, // 30 min duration
+                attendees: [
+                    { email: tenantEmail },
+                    { email: landlordEmail },
+                ],
+            };
+            const event = yield (0, googleCalendar_1.createEvent)(eventDetails);
+            appointment.calendarEventId = event.id || '';
         }
-        else {
-            appointment.calendarEventId = ''; // Handle the case where event.id is null or undefined
+        catch (error) {
+            console.error('Google Calendar Event Error:', error);
+            res.status(500).json({ message: 'Failed to create Google Calendar event.', error });
+            return;
         }
         yield appointment.save();
         res.status(201).json(appointment);
     }
     catch (error) {
-        console.error(error);
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Error scheduling appointment.', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Error scheduling appointment.', error: 'An unknown error occurred.' });
-        }
+        console.error('Error scheduling appointment:', error);
+        res.status(500).json({ message: 'Error scheduling appointment.', error: error instanceof Error ? error.message : error });
     }
 });
 exports.scheduleAppointment = scheduleAppointment;
 const getAppointmentsForProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { propertyId } = req.params;
     try {
+        if (!propertyId) {
+            res.status(400).json({ message: 'Property ID is required.' });
+            return;
+        }
         const appointments = yield Appointment_1.default.find({ propertyId }).populate('tenantId landlordId');
         res.status(200).json(appointments);
     }
     catch (error) {
-        console.error(error);
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Error fetching appointments.', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Error fetching appointments.', error: 'An unknown error occurred.' });
-        }
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ message: 'Error fetching appointments.', error: error instanceof Error ? error.message : error });
     }
 });
 exports.getAppointmentsForProperty = getAppointmentsForProperty;

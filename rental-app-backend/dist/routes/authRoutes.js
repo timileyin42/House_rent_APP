@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const authController_1 = require("../controllers/authController");
-const userController_1 = require("../controllers/userController"); // Import controllers for fetching users
+const userController_1 = require("../controllers/userController");
 const router = express_1.default.Router();
 // Route for user registration
 router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -22,12 +22,7 @@ router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
         yield (0, authController_1.registerUser)(req, res);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }));
 // Route for user login
@@ -36,12 +31,7 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         yield (0, authController_1.loginUser)(req, res);
     }
     catch (error) {
-        if (error instanceof Error) {
-            res.status(500).json({ message: 'Server error', error: error.message });
-        }
-        else {
-            res.status(500).json({ message: 'Server error', error: 'Unknown error' });
-        }
+        res.status(500).json({ message: 'Server error', error: error instanceof Error ? error.message : 'Unknown error' });
     }
 }));
 // Route to fetch all users

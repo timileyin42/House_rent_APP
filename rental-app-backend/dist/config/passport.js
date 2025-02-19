@@ -22,20 +22,34 @@ passport_1.default.use(new passport_google_oauth20_1.Strategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL,
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         let user = yield User_1.default.findOne({ googleId: profile.id });
         if (!user) {
             user = yield User_1.default.create({
                 googleId: profile.id,
                 name: profile.displayName,
-                email: (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0].value, // Ensure emails array exists
+                email: ((_b = (_a = profile.emails) === null || _a === void 0 ? void 0 : _a[0]) === null || _b === void 0 ? void 0 : _b.value) || '',
             });
         }
         return done(null, user);
     }
     catch (error) {
-        return done(error, false); // Changed from `null` to `false`
+        return done(error, undefined);
     }
 })));
+// Serialize user to session
+passport_1.default.serializeUser((user, done) => {
+    done(null, user.id);
+});
+// Deserialize user from session
+passport_1.default.deserializeUser((id, done) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield User_1.default.findById(id);
+        done(null, user);
+    }
+    catch (error) {
+        done(error, undefined);
+    }
+}));
 exports.default = passport_1.default;

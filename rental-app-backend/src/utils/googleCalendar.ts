@@ -1,24 +1,34 @@
-import { google, calendar_v3 } from 'googleapis';
+import { google } from 'googleapis';
+import fs from 'fs';
+import path from 'path';
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+const SCOPES = ['https://www.googleapis.com/auth/calendar'];
+const CREDENTIALS_PATH = path.join(__dirname, '../config/credentials.json');
 
-const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+const auth = new google.auth.GoogleAuth({
+  keyFile: CREDENTIALS_PATH,
+  scopes: SCOPES,
+});
 
-export const createEvent = async (eventDetails: calendar_v3.Schema$Event): Promise<calendar_v3.Schema$Event> => {
+const calendar = google.calendar({ version: 'v3', auth });
+
+export const createEvent = async (eventDetails: any) => {
   try {
     const response = await calendar.events.insert({
-      auth: oauth2Client,
       calendarId: 'primary',
-      requestBody: eventDetails,
+      requestBody: {
+        summary: eventDetails.summary,
+        description: eventDetails.description,
+        start: { dateTime: eventDetails.start.dateTime, timeZone: 'UTC' },
+        end: { dateTime: eventDetails.end.dateTime, timeZone: 'UTC' },
+        attendees: eventDetails.attendees,
+      },
     });
+
     return response.data;
   } catch (error) {
     console.error('Error creating Google Calendar event:', error);
-    throw new Error('Unable to create calendar event.');
+    throw error;
   }
 };
 

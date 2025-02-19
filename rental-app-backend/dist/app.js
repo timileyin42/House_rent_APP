@@ -23,6 +23,8 @@ const paymentRoutes_1 = __importDefault(require("./routes/paymentRoutes"));
 const reviewRoutes_1 = __importDefault(require("./routes/reviewRoutes"));
 const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 const socket_1 = require("./utils/socket");
+const express_session_1 = __importDefault(require("express-session"));
+require("./config/passport");
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -31,6 +33,12 @@ console.log('Connecting to the database...');
 (0, db_1.default)();
 const app = (0, express_1.default)();
 // Middleware
+app.use((0, express_session_1.default)({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+}));
 console.log('Enabling security middleware...');
 app.use((0, helmet_1.default)());
 console.log('Enabling CORS middleware...');

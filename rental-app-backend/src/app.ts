@@ -17,7 +17,10 @@ import appointmentRoutes from './routes/appointmentRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import reviewRoutes from './routes/reviewRoutes';
 import chatRoutes from './routes/chatRoutes';
-import { setupSocket } from './utils/socket'; 
+import { setupSocket } from './utils/socket';
+import passport from './config/passport';
+import session from 'express-session';
+import './config/passport'; 
 
 // Load environment variables from .env file
 dotenv.config();
@@ -30,6 +33,14 @@ connectDB();
 const app = express();
 
 // Middleware
+app.use(
+    session({
+      secret: process.env.SESSION_SECRET as string,
+      resave: false,
+      saveUninitialized: true,
+      cookie: { secure: false }, // Set to true if using HTTPS
+    })
+  );
 console.log('Enabling security middleware...');
 app.use(helmet());
 
