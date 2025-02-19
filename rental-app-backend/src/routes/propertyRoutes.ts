@@ -10,33 +10,228 @@ import {
   getPropertyAnalytics,
 } from '../controllers/propertyController';
 import { validateProperty } from '../middleware/validation';
-import protect from '../middleware/authMiddleware'; // Ensure user is authenticated
-import { landlordOnly } from '../middleware/roleMiddleware'; // Role-based access control
+import protect from '../middleware/authMiddleware';
+import { landlordOnly } from '../middleware/roleMiddleware';
 
 const router = Router();
 
-// Search for properties (open to all)
-router.get('/search', searchProperties); // Ensure searchProperties is correctly defined
+/**
+ * @swagger
+ * tags:
+ *   name: Properties
+ *   description: Endpoints for property management and analytics.
+ */
 
-// Get property by ID (open to all)
-router.get('/:id', getPropertyById); // Ensure getPropertyById is correctly defined
+/**
+ * @swagger
+ * /properties/search:
+ *   get:
+ *     summary: Search for properties
+ *     description: Retrieve properties based on filters like location, price, and features.
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter properties by location.
+ *       - in: query
+ *         name: price_min
+ *         schema:
+ *           type: number
+ *         description: Minimum price filter.
+ *       - in: query
+ *         name: price_max
+ *         schema:
+ *           type: number
+ *         description: Maximum price filter.
+ *     responses:
+ *       200:
+ *         description: Properties found.
+ */
+router.get('/search', searchProperties);
 
-// Track property view (open to all)
-router.post('/:id/view', trackPropertyView); // Ensure trackPropertyView is correctly defined
+/**
+ * @swagger
+ * /properties/{id}:
+ *   get:
+ *     summary: Get property details
+ *     description: Retrieve details of a specific property by ID.
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     responses:
+ *       200:
+ *         description: Property details retrieved successfully.
+ */
+router.get('/:id', getPropertyById);
 
-// Track property inquiry (open to all)
-router.post('/:id/inquiry', trackPropertyInquiry); // Ensure trackPropertyInquiry is correctly defined
+/**
+ * @swagger
+ * /properties/{id}/view:
+ *   post:
+ *     summary: Track property views
+ *     description: Log a view for a specific property.
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     responses:
+ *       200:
+ *         description: Property view recorded.
+ */
+router.post('/:id/view', trackPropertyView);
 
-// Get property analytics (restricted to landlords)
-router.get('/:id/analytics', protect, landlordOnly, getPropertyAnalytics); // Ensure getPropertyAnalytics is correctly defined
+/**
+ * @swagger
+ * /properties/{id}/inquiry:
+ *   post:
+ *     summary: Track property inquiries
+ *     description: Log an inquiry for a specific property.
+ *     tags: [Properties]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     responses:
+ *       200:
+ *         description: Inquiry recorded successfully.
+ */
+router.post('/:id/inquiry', trackPropertyInquiry);
 
-// Create a new property (restricted to landlords)
-router.post('/', protect, landlordOnly, validateProperty, createProperty); // Ensure createProperty is correctly defined
+/**
+ * @swagger
+ * /properties/{id}/analytics:
+ *   get:
+ *     summary: Get property analytics
+ *     description: Retrieve analytics such as number of views and inquiries (landlord-only).
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     responses:
+ *       200:
+ *         description: Property analytics retrieved.
+ *       403:
+ *         description: Access forbidden (only landlords allowed).
+ */
+router.get('/:id/analytics', protect, landlordOnly, getPropertyAnalytics);
 
-// Update property by ID (restricted to landlords)
-router.put('/:id', protect, landlordOnly, updatePropertyById); // Ensure updatePropertyById is correctly defined
+/**
+ * @swagger
+ * /properties:
+ *   post:
+ *     summary: Create a new property
+ *     description: Add a new property (landlord-only).
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Property title.
+ *               location:
+ *                 type: string
+ *                 description: Property location.
+ *               price:
+ *                 type: number
+ *                 description: Rental price.
+ *               description:
+ *                 type: string
+ *                 description: Property description.
+ *     responses:
+ *       201:
+ *         description: Property created successfully.
+ *       403:
+ *         description: Access forbidden (only landlords allowed).
+ */
+router.post('/', protect, landlordOnly, validateProperty, createProperty);
 
-// Delete property by ID (restricted to landlords)
-router.delete('/:id', protect, landlordOnly, deletePropertyById); // Ensure deletePropertyById is correctly defined
+/**
+ * @swagger
+ * /properties/{id}:
+ *   put:
+ *     summary: Update property details
+ *     description: Modify an existing property (landlord-only).
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               location:
+ *                 type: string
+ *               price:
+ *                 type: number
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Property updated successfully.
+ *       403:
+ *         description: Access forbidden (only landlords allowed).
+ */
+router.put('/:id', protect, landlordOnly, updatePropertyById);
+
+/**
+ * @swagger
+ * /properties/{id}:
+ *   delete:
+ *     summary: Delete a property
+ *     description: Remove an existing property (landlord-only).
+ *     tags: [Properties]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The property ID.
+ *     responses:
+ *       200:
+ *         description: Property deleted successfully.
+ *       403:
+ *         description: Access forbidden (only landlords allowed).
+ */
+router.delete('/:id', protect, landlordOnly, deletePropertyById);
 
 export default router;

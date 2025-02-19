@@ -5,6 +5,7 @@ import dotenv from 'dotenv-safe';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
+const swaggerDocs = require('./swagger/swagger').default;
 import { createServer } from 'http'; 
 import { Server as SocketIOServer } from 'socket.io';
 import connectDB from './config/db';
@@ -41,6 +42,9 @@ app.use(
       cookie: { secure: false }, // Set to true if using HTTPS
     })
   );
+
+swaggerDocs(app); // Initialize Swagger documentation
+
 console.log('Enabling security middleware...');
 app.use(helmet());
 

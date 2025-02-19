@@ -33,8 +33,7 @@
     "passport-google-oauth20": "^2.0.0",
     "paystack-api": "^2.0.6",
     "socket.io": "^4.8.1",
-    "socket.io-client": "^4.8.1",
-    "swagger-ui-express": "^5.0.1"
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -54,6 +53,8 @@
     "nodemon": "^3.1.9",
     "rimraf": "^6.0.1",
     "supertest": "^7.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
   }

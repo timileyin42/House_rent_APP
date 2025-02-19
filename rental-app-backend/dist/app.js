@@ -10,6 +10,7 @@ const dotenv_safe_1 = __importDefault(require("dotenv-safe"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swaggerDocs = require('./swagger/swagger').default;
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const db_1 = __importDefault(require("./config/db"));
@@ -39,6 +40,7 @@ app.use((0, express_session_1.default)({
     saveUninitialized: true,
     cookie: { secure: false }, // Set to true if using HTTPS
 }));
+swaggerDocs(app); // Initialize Swagger documentation
 console.log('Enabling security middleware...');
 app.use((0, helmet_1.default)());
 console.log('Enabling CORS middleware...');
