@@ -1,13 +1,8 @@
 import { Request as ExpressRequest, Response } from 'express';
+import { AuthRequest } from '../types/AuthRequest';
 import { Property } from '../models/Property'; // Adjust the import based on your project structure
 import { UserActivity } from '../models/UserActivity'; // Import the UserActivity model
 
-// Define a custom interface that extends the Express Request
-interface AuthRequest extends ExpressRequest {
-    user?: {
-        _id: string; // or mongoose.Types.ObjectId if you're using Mongoose
-    };
-}
 
 // Function to create a new property
 export const createProperty = async (req: AuthRequest, res: Response): Promise<void> => {

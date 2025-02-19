@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import * as Joi from 'joi';
 import { Request, Response, NextFunction } from 'express';
 
 // Define the Joi validation schema

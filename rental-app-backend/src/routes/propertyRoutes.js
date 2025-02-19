@@ -1,66 +1,25 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const Property_1 = require("../models/Property");
-const router = express_1.default.Router();
-// Get all properties
-router.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const properties = yield Property_1.Property.find();
-        res.json(properties);
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error fetching properties', error });
-    }
-}));
-// Get a property by ID
-router.get('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const property = yield Property_1.Property.findById(req.params.id);
-        if (!property)
-            return res.status(404).json({ message: 'Property not found' });
-        res.json(property);
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error fetching property', error });
-    }
-}));
-// Update a property by ID
-router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const updatedProperty = yield Property_1.Property.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-        });
-        if (!updatedProperty)
-            return res.status(404).json({ message: 'Property not found' });
-        res.json(updatedProperty);
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error updating property', error });
-    }
-}));
-// Delete a property by ID
-router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const deletedProperty = yield Property_1.Property.findByIdAndDelete(req.params.id);
-        if (!deletedProperty)
-            return res.status(404).json({ message: 'Property not found' });
-        res.json({ message: 'Property deleted' });
-    }
-    catch (error) {
-        res.status(500).json({ message: 'Error deleting property', error });
-    }
-}));
+var express_1 = require("express");
+var propertyController_1 = require("../controllers/propertyController");
+var validation_1 = require("../middleware/validation");
+var authMiddleware_1 = require("../middleware/authMiddleware"); // Ensure user is authenticated
+var roleMiddleware_1 = require("../middleware/roleMiddleware"); // Role-based access control
+var router = (0, express_1.Router)();
+// Search for properties (open to all)
+router.get('/search', propertyController_1.searchProperties); // Ensure searchProperties is correctly defined
+// Get property by ID (open to all)
+router.get('/:id', propertyController_1.getPropertyById); // Ensure getPropertyById is correctly defined
+// Track property view (open to all)
+router.post('/:id/view', propertyController_1.trackPropertyView); // Ensure trackPropertyView is correctly defined
+// Track property inquiry (open to all)
+router.post('/:id/inquiry', propertyController_1.trackPropertyInquiry); // Ensure trackPropertyInquiry is correctly defined
+// Get property analytics (restricted to landlords)
+router.get('/:id/analytics', authMiddleware_1.default, roleMiddleware_1.landlordOnly, propertyController_1.getPropertyAnalytics); // Ensure getPropertyAnalytics is correctly defined
+// Create a new property (restricted to landlords)
+router.post('/', authMiddleware_1.default, roleMiddleware_1.landlordOnly, validation_1.validateProperty, propertyController_1.createProperty); // Ensure createProperty is correctly defined
+// Update property by ID (restricted to landlords)
+router.put('/:id', authMiddleware_1.default, roleMiddleware_1.landlordOnly, propertyController_1.updatePropertyById); // Ensure updatePropertyById is correctly defined
+// Delete property by ID (restricted to landlords)
+router.delete('/:id', authMiddleware_1.default, roleMiddleware_1.landlordOnly, propertyController_1.deletePropertyById); // Ensure deletePropertyById is correctly defined
 exports.default = router;

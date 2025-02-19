@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthRequest } from './authMiddleware';
+import { AuthRequest } from '../types/AuthRequest';
 
 // Middleware to restrict access to landlords
 export const landlordOnly = (req: AuthRequest, res: Response, next: NextFunction): void => {

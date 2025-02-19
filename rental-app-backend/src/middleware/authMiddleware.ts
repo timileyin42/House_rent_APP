@@ -1,14 +1,8 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
+import { AuthRequest } from '../types/AuthRequest';
+export { AuthRequest };
 import { Request, Response, NextFunction } from 'express';
 
-export interface AuthRequest extends Request {
-    user?: {
-        id?: string;
-        email?: string;
-        role?: string; // Ensure role is included here
-        [key: string]: any;
-    };
-}
 
 const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
     let token;
