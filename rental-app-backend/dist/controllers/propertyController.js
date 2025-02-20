@@ -8,13 +8,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPropertyAnalytics = exports.trackPropertyInquiry = exports.trackPropertyView = exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.searchProperties = exports.createProperty = void 0;
-const Property_1 = require("../models/Property"); // Adjust the import based on your project structure
+const Property_1 = require("../models/Property"); // Import the Property model
 const UserActivity_1 = require("../models/UserActivity"); // Import the UserActivity model
-// Function to create a new property
+const axios_1 = __importDefault(require("axios")); // For making HTTP requests to geocoding API
+const dotenv_1 = __importDefault(require("dotenv")); // Import dotenv to use environment variables
+dotenv_1.default.config(); // Load environment variables from .env file
+// Geocoding API configuration
+const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY; // Use API key from .env
+const GEOCODING_API_URL = process.env.GEOCODING_API_URL; // Use API URL from .env
+// Function to create a new property with geocoding
 const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { title, description, price, address, landlord, images } = req.body;
+    const { title, description, price, address, landlord, images, propertyType, bedrooms } = req.body;
     try {
         // Check for duplicate listings
         const existingProperty = yield Property_1.Property.findOne({ title, address, landlord });
@@ -27,8 +36,27 @@ const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function*
             res.status(400).json({ message: 'At least one image is required.' });
             return;
         }
-        // Create a new property
-        const property = yield Property_1.Property.create({ title, description, price, address, landlord, images });
+        // Geocode the address to get latitude and longitude
+        const geocodeResponse = yield axios_1.default.get(GEOCODING_API_URL, {
+            params: {
+                address: address,
+                key: GEOCODING_API_KEY,
+            },
+        });
+        const { lat: latitude, lng: longitude } = geocodeResponse.data.results[0].geometry.location;
+        // Create a new property with geocoded coordinates
+        const property = yield Property_1.Property.create({
+            title,
+            description,
+            price,
+            address,
+            latitude,
+            longitude,
+            landlord,
+            images,
+            propertyType,
+            bedrooms,
+        });
         // Log user activity
         yield UserActivity_1.UserActivity.create({ userId: landlord, action: 'created_listing' });
         res.status(201).json(property); // Respond with the created property
@@ -42,10 +70,10 @@ const createProperty = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.createProperty = createProperty;
-// Function to search for properties
+// Function to search for properties with coordinates
 const searchProperties = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { title, price, address } = req.query; // Get search parameters from query
+    const { title, price, address, latitude, longitude, radius } = req.query; // Get search parameters from query
     const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id; // Assuming you have user info in req.user after authentication
     try {
         // Build the search criteria
@@ -58,6 +86,18 @@ const searchProperties = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
         if (address) {
             searchCriteria.address = { $regex: address, $options: 'i' }; // Case-insensitive search
+        }
+        // Add geospatial search if latitude, longitude, and radius are provided
+        if (latitude && longitude && radius) {
+            searchCriteria.location = {
+                $near: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                    },
+                    $maxDistance: parseFloat(radius) * 1000, // Convert radius to meters
+                },
+            };
         }
         // Find properties based on the search criteria
         const properties = yield Property_1.Property.find(searchCriteria);

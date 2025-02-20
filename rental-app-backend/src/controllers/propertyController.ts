@@ -1,12 +1,19 @@
-import { Request as ExpressRequest, Response } from 'express';
-import { AuthRequest } from '../types/AuthRequest';
-import { Property } from '../models/Property'; // Adjust the import based on your project structure
+import { Response } from 'express';
+import { AuthRequest } from '../types/AuthRequest'; // Import the AuthRequest interface
+import { Property } from '../models/Property'; // Import the Property model
 import { UserActivity } from '../models/UserActivity'; // Import the UserActivity model
+import axios from 'axios'; // For making HTTP requests to geocoding API
+import dotenv from 'dotenv'; // Import dotenv to use environment variables
 
+dotenv.config(); // Load environment variables from .env file
 
-// Function to create a new property
+// Geocoding API configuration
+const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY as string; // Use API key from .env
+const GEOCODING_API_URL = process.env.GEOCODING_API_URL as string; // Use API URL from .env
+
+// Function to create a new property with geocoding
 export const createProperty = async (req: AuthRequest, res: Response): Promise<void> => {
-    const { title, description, price, address, landlord, images } = req.body;
+    const { title, description, price, address, landlord, images, propertyType, bedrooms } = req.body;
 
     try {
         // Check for duplicate listings
@@ -22,8 +29,29 @@ export const createProperty = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        // Create a new property
-        const property = await Property.create({ title, description, price, address, landlord, images });
+        // Geocode the address to get latitude and longitude
+        const geocodeResponse = await axios.get(GEOCODING_API_URL, {
+            params: {
+                address: address,
+                key: GEOCODING_API_KEY,
+            },
+        });
+
+        const { lat: latitude, lng: longitude } = geocodeResponse.data.results[0].geometry.location;
+
+        // Create a new property with geocoded coordinates
+        const property = await Property.create({
+            title,
+            description,
+            price,
+            address,
+            latitude,
+            longitude,
+            landlord,
+            images,
+            propertyType,
+            bedrooms,
+        });
 
         // Log user activity
         await UserActivity.create({ userId: landlord, action: 'created_listing' });
@@ -38,9 +66,9 @@ export const createProperty = async (req: AuthRequest, res: Response): Promise<v
     }
 };
 
-// Function to search for properties
+// Function to search for properties with coordinates
 export const searchProperties = async (req: AuthRequest, res: Response): Promise<void> => {
-    const { title, price, address } = req.query; // Get search parameters from query
+    const { title, price, address, latitude, longitude, radius } = req.query; // Get search parameters from query
     const userId = req.user?._id; // Assuming you have user info in req.user after authentication
 
     try {
@@ -54,6 +82,19 @@ export const searchProperties = async (req: AuthRequest, res: Response): Promise
         }
         if (address) {
             searchCriteria.address = { $regex: address, $options: 'i' }; // Case-insensitive search
+        }
+
+        // Add geospatial search if latitude, longitude, and radius are provided
+        if (latitude && longitude && radius) {
+            searchCriteria.location = {
+                $near: {
+                    $geometry: {
+                        type: 'Point',
+                        coordinates: [parseFloat(longitude as string), parseFloat(latitude as string)],
+                    },
+                    $maxDistance: parseFloat(radius as string) * 1000, // Convert radius to meters
+                },
+            };
         }
 
         // Find properties based on the search criteria
@@ -78,7 +119,6 @@ export const searchProperties = async (req: AuthRequest, res: Response): Promise
         });
     }
 };
-
 
 // Function to get a property by ID
 export const getPropertyById = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -105,7 +145,6 @@ export const getPropertyById = async (req: AuthRequest, res: Response): Promise<
     }
 };
 
-
 // Function to update a property by ID
 export const updatePropertyById = async (req: AuthRequest, res: Response): Promise<void> => {
     console.log(`PUT /api/properties/${req.params.id} called with data:`, req.body);
@@ -131,7 +170,6 @@ export const updatePropertyById = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-
 // Function to delete a property by ID
 export const deletePropertyById = async (req: AuthRequest, res: Response): Promise<void> => {
     console.log(`DELETE /api/properties/${req.params.id} called`);
@@ -156,6 +194,7 @@ export const deletePropertyById = async (req: AuthRequest, res: Response): Promi
         });
     }
 };
+
 
 // Function to track property views
 export const trackPropertyView = async (req: AuthRequest, res: Response): Promise<void> => {

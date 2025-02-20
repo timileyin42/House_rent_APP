@@ -1,4 +1,6 @@
-import { Router } from 'express';
+import { Router, Response, NextFunction } from 'express';
+import * as dotenv from 'dotenv';
+import axios from 'axios';
 import {
   createProperty,
   getPropertyById,
@@ -12,8 +14,18 @@ import {
 import { validateProperty } from '../middleware/validation';
 import protect from '../middleware/authMiddleware';
 import { landlordOnly } from '../middleware/roleMiddleware';
+import { AuthRequest } from '../types/AuthRequest';
+
+dotenv.config();
 
 const router = Router();
+const GEOCODING_API_URL = process.env.GEOCODING_API_URL;
+const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
+
+// Validate environment variables
+if (!GEOCODING_API_URL || !GEOCODING_API_KEY) {
+  throw new Error('Geocoding API URL or API key is missing in environment variables.');
+}
 
 /**
  * @swagger
@@ -49,7 +61,34 @@ const router = Router();
  *       200:
  *         description: Properties found.
  */
-router.get('/search', searchProperties);
+router.get('/search', async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { location } = req.query;
+    let latitude, longitude;
+
+    if (location) {
+      const geoResponse = await axios.get(GEOCODING_API_URL, {
+        params: { address: location, key: GEOCODING_API_KEY },
+      });
+
+      if (geoResponse.data.results.length === 0) {
+        res.status(400).json({ message: 'Invalid location provided.' });
+        return;
+      }
+
+      latitude = geoResponse.data.results[0].geometry.location.lat;
+      longitude = geoResponse.data.results[0].geometry.location.lng;
+    }
+
+    req.query.latitude = latitude;
+    req.query.longitude = longitude;
+
+    // Call the controller function without passing `next`
+    await searchProperties(req, res);
+  } catch (error) {
+    next(error); // Pass errors to the error-handling middleware
+  }
+});
 
 /**
  * @swagger
@@ -169,7 +208,27 @@ router.get('/:id/analytics', protect, landlordOnly, getPropertyAnalytics);
  *       403:
  *         description: Access forbidden (only landlords allowed).
  */
-router.post('/', protect, landlordOnly, validateProperty, createProperty);
+router.post('/', protect, landlordOnly, validateProperty, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { location } = req.body;
+    const geoResponse = await axios.get(GEOCODING_API_URL, {
+      params: { address: location, key: GEOCODING_API_KEY },
+    });
+
+    if (geoResponse.data.results.length === 0) {
+      res.status(400).json({ message: 'Invalid location provided.' });
+      return;
+    }
+
+    req.body.latitude = geoResponse.data.results[0].geometry.location.lat;
+    req.body.longitude = geoResponse.data.results[0].geometry.location.lng;
+
+    // Call the controller function without passing `next`
+    await createProperty(req, res);
+  } catch (error) {
+    next(error); // Pass errors to the error-handling middleware
+  }
+});
 
 /**
  * @swagger

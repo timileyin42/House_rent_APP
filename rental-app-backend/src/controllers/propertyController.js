@@ -37,21 +37,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPropertyAnalytics = exports.trackPropertyInquiry = exports.trackPropertyView = exports.deletePropertyById = exports.updatePropertyById = exports.getPropertyById = exports.searchProperties = exports.createProperty = void 0;
-var Property_1 = require("../models/Property"); // Adjust the import based on your project structure
+var Property_1 = require("../models/Property"); // Import the Property model
 var UserActivity_1 = require("../models/UserActivity"); // Import the UserActivity model
-// Function to create a new property
+var axios_1 = require("axios"); // For making HTTP requests to geocoding API
+var dotenv_1 = require("dotenv"); // Import dotenv to use environment variables
+dotenv_1.default.config(); // Load environment variables from .env file
+// Geocoding API configuration
+var GEOCODING_API_KEY = process.env.GEOCODING_API_KEY; // Use API key from .env
+var GEOCODING_API_URL = process.env.GEOCODING_API_URL; // Use API URL from .env
+// Function to create a new property with geocoding
 var createProperty = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, title, description, price, address, landlord, images, existingProperty, property, error_1;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _a, title, description, price, address, landlord, images, propertyType, bedrooms, existingProperty, geocodeResponse, _b, latitude, longitude, property, error_1;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                _a = req.body, title = _a.title, description = _a.description, price = _a.price, address = _a.address, landlord = _a.landlord, images = _a.images;
-                _b.label = 1;
+                _a = req.body, title = _a.title, description = _a.description, price = _a.price, address = _a.address, landlord = _a.landlord, images = _a.images, propertyType = _a.propertyType, bedrooms = _a.bedrooms;
+                _c.label = 1;
             case 1:
-                _b.trys.push([1, 5, , 6]);
+                _c.trys.push([1, 6, , 7]);
                 return [4 /*yield*/, Property_1.Property.findOne({ title: title, address: address, landlord: landlord })];
             case 2:
-                existingProperty = _b.sent();
+                existingProperty = _c.sent();
                 if (existingProperty) {
                     res.status(400).json({ message: 'Duplicate property listing detected.' });
                     return [2 /*return*/];
@@ -61,37 +67,57 @@ var createProperty = function (req, res) { return __awaiter(void 0, void 0, void
                     res.status(400).json({ message: 'At least one image is required.' });
                     return [2 /*return*/];
                 }
-                return [4 /*yield*/, Property_1.Property.create({ title: title, description: description, price: price, address: address, landlord: landlord, images: images })];
+                return [4 /*yield*/, axios_1.default.get(GEOCODING_API_URL, {
+                        params: {
+                            address: address,
+                            key: GEOCODING_API_KEY,
+                        },
+                    })];
             case 3:
-                property = _b.sent();
+                geocodeResponse = _c.sent();
+                _b = geocodeResponse.data.results[0].geometry.location, latitude = _b.lat, longitude = _b.lng;
+                return [4 /*yield*/, Property_1.Property.create({
+                        title: title,
+                        description: description,
+                        price: price,
+                        address: address,
+                        latitude: latitude,
+                        longitude: longitude,
+                        landlord: landlord,
+                        images: images,
+                        propertyType: propertyType,
+                        bedrooms: bedrooms,
+                    })];
+            case 4:
+                property = _c.sent();
                 // Log user activity
                 return [4 /*yield*/, UserActivity_1.UserActivity.create({ userId: landlord, action: 'created_listing' })];
-            case 4:
-                // Log user activity
-                _b.sent();
-                res.status(201).json(property); // Respond with the created property
-                return [3 /*break*/, 6];
             case 5:
-                error_1 = _b.sent();
+                // Log user activity
+                _c.sent();
+                res.status(201).json(property); // Respond with the created property
+                return [3 /*break*/, 7];
+            case 6:
+                error_1 = _c.sent();
                 console.error('Error creating property:', error_1);
                 res.status(500).json({
                     message: 'Server error',
                     error: error_1.message,
                 });
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
         }
     });
 }); };
 exports.createProperty = createProperty;
-// Function to search for properties
+// Function to search for properties with coordinates
 var searchProperties = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, title, price, address, userId, searchCriteria, properties, error_2;
+    var _a, title, price, address, latitude, longitude, radius, userId, searchCriteria, properties, error_2;
     var _b;
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                _a = req.query, title = _a.title, price = _a.price, address = _a.address;
+                _a = req.query, title = _a.title, price = _a.price, address = _a.address, latitude = _a.latitude, longitude = _a.longitude, radius = _a.radius;
                 userId = (_b = req.user) === null || _b === void 0 ? void 0 : _b._id;
                 _c.label = 1;
             case 1:
@@ -105,6 +131,18 @@ var searchProperties = function (req, res) { return __awaiter(void 0, void 0, vo
                 }
                 if (address) {
                     searchCriteria.address = { $regex: address, $options: 'i' }; // Case-insensitive search
+                }
+                // Add geospatial search if latitude, longitude, and radius are provided
+                if (latitude && longitude && radius) {
+                    searchCriteria.location = {
+                        $near: {
+                            $geometry: {
+                                type: 'Point',
+                                coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                            },
+                            $maxDistance: parseFloat(radius) * 1000, // Convert radius to meters
+                        },
+                    };
                 }
                 return [4 /*yield*/, Property_1.Property.find(searchCriteria)];
             case 2:

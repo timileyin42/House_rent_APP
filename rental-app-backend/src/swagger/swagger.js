@@ -5,9 +5,9 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Your API Title',
+            title: 'LeaseMate APIs documentation',
             version: '1.0.0',
-            description: 'API documentation for your application',
+            description: 'API documentation for LeaseMate',
         },
         servers: [
             {
