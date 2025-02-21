@@ -1,5 +1,4 @@
 import { Router, Response, NextFunction } from 'express';
-import * as dotenv from 'dotenv';
 import axios from 'axios';
 import {
   createProperty,
@@ -16,14 +15,13 @@ import protect from '../middleware/authMiddleware';
 import { landlordOnly } from '../middleware/roleMiddleware';
 import { AuthRequest } from '../types/AuthRequest';
 
-dotenv.config();
 
 const router = Router();
 const GEOCODING_API_URL = process.env.GEOCODING_API_URL;
-const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 // Validate environment variables
-if (!GEOCODING_API_URL || !GEOCODING_API_KEY) {
+if (!GEOCODING_API_URL || !GOOGLE_MAPS_API_KEY) {
   throw new Error('Geocoding API URL or API key is missing in environment variables.');
 }
 
@@ -68,7 +66,7 @@ router.get('/search', async (req: AuthRequest, res: Response, next: NextFunction
 
     if (location) {
       const geoResponse = await axios.get(GEOCODING_API_URL, {
-        params: { address: location, key: GEOCODING_API_KEY },
+        params: { address: location, key: GOOGLE_MAPS_API_KEY },
       });
 
       if (geoResponse.data.results.length === 0) {
@@ -212,7 +210,7 @@ router.post('/', protect, landlordOnly, validateProperty, async (req: AuthReques
   try {
     const { location } = req.body;
     const geoResponse = await axios.get(GEOCODING_API_URL, {
-      params: { address: location, key: GEOCODING_API_KEY },
+      params: { address: location, key: GOOGLE_MAPS_API_KEY },
     });
 
     if (geoResponse.data.results.length === 0) {

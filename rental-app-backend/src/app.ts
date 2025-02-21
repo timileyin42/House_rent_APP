@@ -24,6 +24,8 @@ import { swaggerDocs } from './swagger/swagger'; // Correct import
 // Load environment variables from .env file
 dotenv.config();
 console.log('Environment variables loaded...');
+console.log('GEOCODING_API_URL:', process.env.GEOCODING_API_URL);
+console.log('GOOGLE_MAPS_API_KEY:', process.env.GOOGLE_MAPS_API_KEY);
 
 // Connect to the database
 console.log('Connecting to the database...');
@@ -42,7 +44,7 @@ app.use(
 );
 
 // Initialize Swagger documentation
-swaggerDocs(app); // Correct usage
+swaggerDocs(app);
 
 console.log('Enabling security middleware...');
 app.use(helmet());

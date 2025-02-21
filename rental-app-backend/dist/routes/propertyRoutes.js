@@ -1,37 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -46,18 +13,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const dotenv = __importStar(require("dotenv"));
 const axios_1 = __importDefault(require("axios"));
 const propertyController_1 = require("../controllers/propertyController");
 const validation_1 = require("../middleware/validation");
 const authMiddleware_1 = __importDefault(require("../middleware/authMiddleware"));
 const roleMiddleware_1 = require("../middleware/roleMiddleware");
-dotenv.config();
 const router = (0, express_1.Router)();
 const GEOCODING_API_URL = process.env.GEOCODING_API_URL;
-const GEOCODING_API_KEY = process.env.GEOCODING_API_KEY;
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 // Validate environment variables
-if (!GEOCODING_API_URL || !GEOCODING_API_KEY) {
+if (!GEOCODING_API_URL || !GOOGLE_MAPS_API_KEY) {
     throw new Error('Geocoding API URL or API key is missing in environment variables.');
 }
 /**
@@ -99,7 +64,7 @@ router.get('/search', (req, res, next) => __awaiter(void 0, void 0, void 0, func
         let latitude, longitude;
         if (location) {
             const geoResponse = yield axios_1.default.get(GEOCODING_API_URL, {
-                params: { address: location, key: GEOCODING_API_KEY },
+                params: { address: location, key: GOOGLE_MAPS_API_KEY },
             });
             if (geoResponse.data.results.length === 0) {
                 res.status(400).json({ message: 'Invalid location provided.' });
@@ -235,7 +200,7 @@ router.post('/', authMiddleware_1.default, roleMiddleware_1.landlordOnly, valida
     try {
         const { location } = req.body;
         const geoResponse = yield axios_1.default.get(GEOCODING_API_URL, {
-            params: { address: location, key: GEOCODING_API_KEY },
+            params: { address: location, key: GOOGLE_MAPS_API_KEY },
         });
         if (geoResponse.data.results.length === 0) {
             res.status(400).json({ message: 'Invalid location provided.' });
