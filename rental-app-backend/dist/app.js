@@ -3,14 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// app.ts
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const dotenv_safe_1 = __importDefault(require("dotenv-safe"));
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
-const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
-const swaggerDocs = require('./swagger/swagger').default;
 const http_1 = require("http");
 const socket_io_1 = require("socket.io");
 const db_1 = __importDefault(require("./config/db"));
@@ -26,6 +23,7 @@ const chatRoutes_1 = __importDefault(require("./routes/chatRoutes"));
 const socket_1 = require("./utils/socket");
 const express_session_1 = __importDefault(require("express-session"));
 require("./config/passport");
+const swagger_1 = require("./swagger/swagger"); // Correct import
 // Load environment variables from .env file
 dotenv_safe_1.default.config();
 console.log('Environment variables loaded...');
@@ -40,7 +38,8 @@ app.use((0, express_session_1.default)({
     saveUninitialized: true,
     cookie: { secure: false }, // Set to true if using HTTPS
 }));
-swaggerDocs(app); // Initialize Swagger documentation
+// Initialize Swagger documentation
+(0, swagger_1.swaggerDocs)(app); // Correct usage
 console.log('Enabling security middleware...');
 app.use((0, helmet_1.default)());
 console.log('Enabling CORS middleware...');
@@ -61,9 +60,6 @@ if (process.env.NODE_ENV !== 'production') {
         next();
     });
 }
-// Swagger Documentation
-console.log('Mounting Swagger documentation...');
-app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(require('./swagger.json')));
 // Define routes
 console.log('Defining root route...');
 app.get('/', (req, res) => {
@@ -107,7 +103,7 @@ console.log('Initializing Socket.IO...');
 const server = (0, http_1.createServer)(app); // Create a server instance
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: '*', // will be Adjust later 
+        origin: '*', // Adjust later
         methods: ['GET', 'POST'],
     },
 });

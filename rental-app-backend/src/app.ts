@@ -1,12 +1,9 @@
-// app.ts
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv-safe';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import swaggerUi from 'swagger-ui-express';
-const swaggerDocs = require('./swagger/swagger').default;
-import { createServer } from 'http'; 
+import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import connectDB from './config/db';
 import propertyRoutes from './routes/propertyRoutes';
@@ -21,7 +18,8 @@ import chatRoutes from './routes/chatRoutes';
 import { setupSocket } from './utils/socket';
 import passport from './config/passport';
 import session from 'express-session';
-import './config/passport'; 
+import './config/passport';
+import { swaggerDocs } from './swagger/swagger'; // Correct import
 
 // Load environment variables from .env file
 dotenv.config();
@@ -35,15 +33,16 @@ const app = express();
 
 // Middleware
 app.use(
-    session({
-      secret: process.env.SESSION_SECRET as string,
-      resave: false,
-      saveUninitialized: true,
-      cookie: { secure: false }, // Set to true if using HTTPS
-    })
-  );
+  session({
+    secret: process.env.SESSION_SECRET as string,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
-swaggerDocs(app); // Initialize Swagger documentation
+// Initialize Swagger documentation
+swaggerDocs(app); // Correct usage
 
 console.log('Enabling security middleware...');
 app.use(helmet());
@@ -57,28 +56,24 @@ app.use(express.json());
 // Rate Limiting
 console.log('Applying rate limiter...');
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per window
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
 });
 app.use(limiter);
 
 // Logging middleware
 if (process.env.NODE_ENV !== 'production') {
-    app.use((req: Request, res: Response, next: NextFunction) => {
-        console.log(`${req.method} request for '${req.url}'`);
-        next();
-    });
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    console.log(`${req.method} request for '${req.url}'`);
+    next();
+  });
 }
-
-// Swagger Documentation
-console.log('Mounting Swagger documentation...');
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(require('./swagger.json')));
 
 // Define routes
 console.log('Defining root route...');
 app.get('/', (req: Request, res: Response) => {
-    console.log('Root route accessed...');
-    res.send('API is running');
+  console.log('Root route accessed...');
+  res.send('API is running');
 });
 
 // Mount Property and Message routes
@@ -119,18 +114,18 @@ app.use('/api/chat', chatRoutes); // Chat API
 // Global error-handling middleware
 console.log('Adding global error-handling middleware...');
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('Unhandled error:', err.stack);
-    res.status(500).json({ message: 'Internal server error', error: err.message });
+  console.error('Unhandled error:', err.stack);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
 // Socket.IO Setup
 console.log('Initializing Socket.IO...');
 const server = createServer(app); // Create a server instance
 const io = new SocketIOServer(server, {
-    cors: {
-        origin: '*', // will be Adjust later 
-        methods: ['GET', 'POST'],
-    },
+  cors: {
+    origin: '*', // Adjust later
+    methods: ['GET', 'POST'],
+  },
 });
 
 // Integrate the socket setup utility
@@ -139,4 +134,3 @@ setupSocket(io);
 // App initialization complete
 console.log('App initialization complete...');
 export default app;
-
